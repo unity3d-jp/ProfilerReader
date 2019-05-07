@@ -1,0 +1,10 @@
+{
+    "name": "com.utj.profilerreader",
+    "displayName": "Profiler Reader",
+    "version": "0.1.0",
+    "unity": "2018.1",
+    "description": "read profiler log data package",
+    "keywords": ["profiler"],
+    "category": "profiler",
+    "dependencies": {}
+}
