@@ -7,6 +7,9 @@ namespace UTJ.ProfilerReader
 {
     public class CUIInterface
     {
+        const int NormalCode = 0;
+        const int TimeoutCode = 10;
+        const int ReadErrorCode = 11;
 
         public enum CsvFileType
         {
@@ -14,8 +17,13 @@ namespace UTJ.ProfilerReader
         };
 
         private static int timeoutSec = 0;
+        private static ILogReaderPerFrameData currentReader = null;
+        private static bool timeouted = false;
+
+
         public static void SetTimeout(int sec)
         {
+            Debug.Log("SetTimeout " + sec);
             timeoutSec = sec;
             System.Threading.Thread th = new System.Threading.Thread(TimeOutExecute);
             th.Start();
@@ -23,7 +31,9 @@ namespace UTJ.ProfilerReader
         public static void TimeOutExecute()
         {
             System.Threading.Thread.Sleep(timeoutSec * 1000);
-            System.Environment.Exit(1);
+            Debug.Log("Timeout!!!");
+            currentReader.ForceExit();
+            timeouted = true;
         }
 
         public static void ProfilerToCsv()
@@ -31,6 +41,8 @@ namespace UTJ.ProfilerReader
             var args = System.Environment.GetCommandLineArgs();
             string inputFile = null;
             string outputDir = null;
+            bool exitFlag = true;
+            bool logFlag = false;
 
             for (int i = 0; i < args.Length; ++i)
             {
@@ -46,20 +58,38 @@ namespace UTJ.ProfilerReader
                 }
                 if (args[i] == "-PH.timeout")
                 {
-                    SetTimeout( int.Parse( args[i + 1] ) );
+                    SetTimeout(int.Parse(args[i + 1]));
+                }
+                if (args[i] == "-PH.exitcode")
+                {
+                    exitFlag = true;
+                }
+                if (args[i] == "-PH.log")
+                {
+                    logFlag = true;
                 }
             }
-            ProfilerToCsv(inputFile, outputDir);
+            int code = ProfilerToCsv(inputFile, outputDir, logFlag);
+            if(timeouted)
+            {
+                code = TimeoutCode;
+            }
+            if (exitFlag)
+            {
+                UnityEditor.EditorApplication.Exit(code);
+            }
         }
 
-        public static void ProfilerToCsv(string inputFile,string outputDir)
+        public static int ProfilerToCsv(string inputFile,string outputDir,bool logFlag)
         {
-            if( string.IsNullOrEmpty(outputDir))
+            int retCode = NormalCode;
+            if ( string.IsNullOrEmpty(outputDir))
             {
                 outputDir = System.IO.Path.GetDirectoryName(inputFile);
             }
 
             var logReader = ProfilerLogUtil.CreateLogReader(inputFile);
+            currentReader = logReader;
 
             List<IAnalyzeFileWriter> analyzeExecutes = new List<IAnalyzeFileWriter>();
             analyzeExecutes.Add(new ThreadAnalyzeToFile());
@@ -78,7 +108,19 @@ namespace UTJ.ProfilerReader
             // Loop and execute each frame
             while (frameData != null)
             {
-                frameData = logReader.ReadFrameData();
+                try
+                {
+                    frameData = logReader.ReadFrameData();
+                    if (logFlag && frameData != null)
+                    {
+                        System.Console.WriteLine("ReadFrame:" + frameData.frameIndex);
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    retCode = ReadErrorCode;
+                    Debug.LogError(e);
+                }
 
                 foreach (var analyzer in analyzeExecutes)
                 {
@@ -99,6 +141,8 @@ namespace UTJ.ProfilerReader
                 string path = System.IO.Path.Combine(outputDir , analyzer.ConvertPath(System.IO.Path.GetFileName( inputFile) ) );
                 analyzer.WriteResultFile(path);
             }
+
+            return retCode;
         }
     }
 }

@@ -80,6 +80,7 @@ namespace UTJ.ProfilerReader.Analyzer
 
         private void CollectRenderThreadData(int frameIdx,ThreadData threadData)
         {
+            if(threadData.m_AllSamples == null) { return; }
             FrameRenderingData frameRenderingData = new FrameRenderingData();
             frameRenderingData.frameIdx = frameIdx;
             frameRenderingData.processCommandsTime = threadData.m_AllSamples[0].timeUS / 1000.0f;
