@@ -111,7 +111,7 @@ namespace UTJ.ProfilerReader
                 try
                 {
                     frameData = logReader.ReadFrameData();
-                    if (logFlag && frameData != null)
+                    if (logFlag)
                     {
                         System.Console.WriteLine("ReadFrame:" + frameData.frameIndex);
                     }

@@ -96,7 +96,7 @@ namespace UTJ.ProfilerReader.UI{
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("ヒットした中での親子関係解消");
+                EditorGUILayout.LabelField("HierarchyMode");
                 this.sampleCondition = (ESampleCondition)EditorGUILayout.EnumPopup(this.sampleCondition);
                 EditorGUILayout.EndHorizontal();
 
@@ -107,26 +107,41 @@ namespace UTJ.ProfilerReader.UI{
             }
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Analyse", GUILayout.Width(100)))
+            if (!IsExecuting())
             {
-                this.pageIndex = 1;
-                if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+
+                if (GUILayout.Button("Analyze", GUILayout.Width(100)))
                 {
-                    Debug.LogError("No such File ");
+                    this.pageIndex = 1;
+                    if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                    {
+                        Debug.LogError("No such File ");
+                    }
+                    else
+                    {
+                        logReader = ProfilerLogUtil.CreateLogReader(filePath);
+                        columnList.Clear();
+                    }
                 }
-                else
+            }
+            else
+            {
+                if (GUILayout.Button("Cancel", GUILayout.Width(100)))
                 {
-                    logReader = ProfilerLogUtil.CreateLogReader(filePath);
-                    columnList.Clear();
+                    logReader.ForceExit();
                 }
             }
             GUILayout.Label("");
-            if (GUILayout.Button("Write To CSV", GUILayout.Width(100)))
+            if (logReader != null && logReader.IsComplete)
             {
-                SaveToCsv();
+                if (GUILayout.Button("Write To CSV", GUILayout.Width(100)))
+                {
+                    SaveToCsv();
+                }
             }
             EditorGUILayout.EndHorizontal();
-            if (logReader != null && 0.0f < logReader.Progress && logReader.Progress < 1.0f)
+            // execute now
+            if (IsExecuting())
             {
                 EditorGUILayout.LabelField("Progress " + logReader.Progress * 100.0f + "%");
             }
@@ -135,6 +150,11 @@ namespace UTJ.ProfilerReader.UI{
                 this.ONGUIResultList();
                 treeView.OnGUI();
             }
+        }
+
+        private bool IsExecuting()
+        {
+            return (logReader != null && 0.0f < logReader.Progress && logReader.Progress < 1.0f);
         }
 
 
