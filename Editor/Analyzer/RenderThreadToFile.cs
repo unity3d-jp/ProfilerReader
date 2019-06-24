@@ -15,7 +15,7 @@ namespace UTJ.ProfilerReader.Analyzer
             public float opaque;
             public float transparent;
             public float imageEffect;
-            /* llasでは必要ないので… 後回し
+            /* TODO … 後回し
             public float shadowRendering;
             public float collectShadow;
             */
