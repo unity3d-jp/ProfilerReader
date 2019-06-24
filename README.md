@@ -9,11 +9,10 @@ For example, generate csv files that shows Samples allocating many Managed Heap 
 5.6 / 2017.1 / 2017.2 / 2017.3 / 2017.4 / 2018.1 / 2018.2 / 2018.3 / 2018.4 
 
 
-
+## GUI Interface
 
 ## CUI Interface
-
-### ExampleÅF
+### Example Command
 Unity.exe -batchMode -projectPath "ProjectPath" -logFile .\Editor.log -executeMethod UTJ.ProfilerReader.CUIInterface.ProfilerToCsv -PH.inputFile "Binary logFile(.data/.raw)" -PH.timeout 2400 -PH.log
 
 And some csv file will be generated at the same path with binaryLog.
