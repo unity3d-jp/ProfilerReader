@@ -5,7 +5,7 @@ using System.Text;
 
 namespace UTJ.ProfilerReader.Analyzer
 {
-    public class RenderThreadToFile : IAnalyzeFileWriter
+    public class RenderThreadToFile : AnalyzeToTextbaseFileBase
     {
 
         private struct CameraRenderData
@@ -15,19 +15,15 @@ namespace UTJ.ProfilerReader.Analyzer
             public float opaque;
             public float transparent;
             public float imageEffect;
-            /* TODO … 後回し
-            public float shadowRendering;
-            public float collectShadow;
-            */
 
 
-            public void AppendToStringBuilder(StringBuilder sb)
+            public void AppendToStringBuilder(CsvStringGenerator csvStringGenerator)
             {
-                sb.Append(renderTime).Append(",");
-                sb.Append(updateDepth).Append(",");
-                sb.Append(opaque).Append(",");
-                sb.Append(transparent).Append(",");
-                sb.Append(imageEffect).Append(",");
+                csvStringGenerator.AppendColumn(renderTime);
+                csvStringGenerator.AppendColumn(updateDepth);
+                csvStringGenerator.AppendColumn(opaque);
+                csvStringGenerator.AppendColumn(transparent);
+                csvStringGenerator.AppendColumn(imageEffect);
             }
         }
 
@@ -45,21 +41,21 @@ namespace UTJ.ProfilerReader.Analyzer
 
             public List<CameraRenderData> cameraRenders = new List<CameraRenderData>(8);
 
-            public void AppendToStringBuilder(StringBuilder sb)
+            public void AppendToCsvGenerator(CsvStringGenerator csvStringGenerator)
             {
-                sb.Append(frameIdx).Append(",");
-                sb.Append(processCommandsTime).Append(",");
-                sb.Append(waitForCommandsTime).Append(",");
-                sb.Append(scheduleGeometryJobTime).Append(",");
-                sb.Append(scheduleGeometryJobNum).Append(",");
-                sb.Append(presentFrameTime).Append(",");
-                sb.Append(guiRepaint).Append(",");
-                sb.Append( cameraRenders.Count).Append(",");
+                csvStringGenerator.AppendColumn(frameIdx);
+                csvStringGenerator.AppendColumn(processCommandsTime);
+                csvStringGenerator.AppendColumn(waitForCommandsTime);
+                csvStringGenerator.AppendColumn(scheduleGeometryJobTime);
+                csvStringGenerator.AppendColumn(scheduleGeometryJobNum);
+                csvStringGenerator.AppendColumn(presentFrameTime);
+                csvStringGenerator.AppendColumn(guiRepaint);
+                csvStringGenerator.AppendColumn( cameraRenders.Count);
 
                 foreach (var cameraRender in cameraRenders)
                 {
-                    sb.Append(",");
-                    cameraRender.AppendToStringBuilder(sb);
+                    csvStringGenerator.AppendColumn("");
+                    cameraRender.AppendToStringBuilder(csvStringGenerator);
                 }
             }
         }
@@ -68,7 +64,7 @@ namespace UTJ.ProfilerReader.Analyzer
         private int maxCameraNum = 0;
 
 
-        public void CollectData(ProfilerFrameData frameData)
+        public override void CollectData(ProfilerFrameData frameData)
         {
             foreach( var threadData in frameData.m_ThreadData){
                 if(threadData.m_ThreadName == "Render Thread")
@@ -168,32 +164,38 @@ namespace UTJ.ProfilerReader.Analyzer
         /// <summary>
         /// 結果書き出し
         /// </summary>
-        public void WriteResultFile(string path)
+        protected override string GetResultText()
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder(1024 * 1024);
-            sb.Append("frameIdx,processCommandsTime,waitForCommandsTime,scheduleGeometryJobTime,scheduleGeometryJobNum,presentFrameTime,guiRepaint,cameraRenders,");
+            CsvStringGenerator csvStringGenerator = new CsvStringGenerator();
+            csvStringGenerator.AppendColumn("frameIdx").AppendColumn("processCommandsTime").
+                AppendColumn("waitForCommandsTime").AppendColumn("scheduleGeometryJobTime").AppendColumn("scheduleGeometryJobNum").AppendColumn("presentFrameTime").AppendColumn("guiRepaint").AppendColumn("cameraRenders");
 
             for (int i = 0; i < maxCameraNum; ++i)
             {
-                sb.Append("Camera").Append(i). Append(",");
-                sb.Append("renderTime,updateDepth,opaque,transparent,imageEffect,");
+                csvStringGenerator.AppendColumn("Camera"+i);
+                csvStringGenerator.AppendColumn("renderTime").AppendColumn("updateDepth").AppendColumn("opaque").AppendColumn("transparent").AppendColumn("imageEffect");
             }
-            sb.Append("\n");
+            csvStringGenerator.NextRow();
 
             foreach (var frameRenderingData in this.frameRenderingDatas)
             {
-                frameRenderingData.AppendToStringBuilder(sb);
-                sb.Append("\n");
+                frameRenderingData.AppendToCsvGenerator(csvStringGenerator);
+                csvStringGenerator.NextRow();
             }
 
-            System.IO.File.WriteAllText(path, sb.ToString());
+            return csvStringGenerator.ToString();
+        }
+        
+
+        protected override string FooterName
+        {
+            get
+            {
+                return "_renderthread.csv";
+            }
         }
 
-        public string ConvertPath(string originPath)
-        {
-            var path = originPath.Replace(".", "_") + "_renderthread.csv";
-            return path;
-        }
+
     }
 
 }

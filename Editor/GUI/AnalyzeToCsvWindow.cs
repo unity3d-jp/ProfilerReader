@@ -39,12 +39,11 @@ namespace UTJ.ProfilerReader.UI {
         private void OnEnable()
         {
             this.fileWriterFlags.Clear();
-            this.fileWriterFlags.Add(new FileWriterFlag() { name = "MainThread",   type = typeof(MainThreadAnalyzeToFile), flag = true });
-            this.fileWriterFlags.Add(new FileWriterFlag() { name = "WorkerThread", type = typeof(WorkerJobAnalyzeToFile), flag = true });
-            this.fileWriterFlags.Add(new FileWriterFlag() { name = "ByThread", type = typeof(ThreadAnalyzeToFile), flag = true });
-            this.fileWriterFlags.Add(new FileWriterFlag() { name = "Memory", type = typeof(MemoryAnalyzeToFile), flag = true });
-            this.fileWriterFlags.Add(new FileWriterFlag() { name = "Rendering", type = typeof(RenderingAnalyzeToFile), flag = true });
-            this.fileWriterFlags.Add(new FileWriterFlag() { name = "RenderThread", type = typeof(RenderThreadToFile), flag = true });
+            var types = AnalyzerUtil.GetInterfaceType<IAnalyzeFileWriter>();
+            foreach( var t in types)
+            {
+                this.fileWriterFlags.Add(new FileWriterFlag() { name = t.Name, type = t, flag = true });
+            }
         }
 
         void Update()
@@ -58,11 +57,13 @@ namespace UTJ.ProfilerReader.UI {
                     {
                         // 終わったタイミングでcsv 
                         string dialogStr = "Write to csv files\n";
+                        string outputDir = System.IO.Path.GetDirectoryName(this.filePath);
+                        string logfilename = System.IO.Path.GetFileName(this.filePath);
+
                         foreach (var analyzer in this.analyzeExecutes)
                         {
-                            string path = analyzer.ConvertPath(this.filePath);
-                            analyzer.WriteResultFile(path);
-                            dialogStr += path + "\n";
+                            analyzer.WriteResultFile( logfilename , outputDir);
+                            dialogStr += analyzer.GetType() + "\n";
                         }
                         EditorUtility.DisplayDialog("Result", dialogStr, "ok");
                         analyzeExecutes.Clear();
@@ -112,26 +113,40 @@ namespace UTJ.ProfilerReader.UI {
                 this.filePath = EditorUtility.OpenFilePanelWithFilters("", "Select BinaryLogFile", new string[] { "profiler log", "data,raw" });
             }
 
-            if (GUILayout.Button("Analyze", GUILayout.Width(100)))
+            if (!IsExecute())
             {
-                if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                if (GUILayout.Button("Analyze", GUILayout.Width(100)))
                 {
-                    Debug.LogError("No such File ");
-                }
-                else
-                {
-                    logReader = ProfilerLogUtil.CreateLogReader(filePath);
-                    for (int i = 0; i < fileWriterFlags.Count; ++i)
+                    if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
                     {
-                        if (this.fileWriterFlags[i].flag)
+                        Debug.LogError("No such File ");
+                    }
+                    else
+                    {
+                        logReader = ProfilerLogUtil.CreateLogReader(filePath);
+                        for (int i = 0; i < fileWriterFlags.Count; ++i)
                         {
-                            analyzeExecutes.Add(System.Activator.CreateInstance(fileWriterFlags[i].type) as IAnalyzeFileWriter);
+                            if (this.fileWriterFlags[i].flag)
+                            {
+                                analyzeExecutes.Add(System.Activator.CreateInstance(fileWriterFlags[i].type) as IAnalyzeFileWriter);
+                            }
                         }
                     }
                 }
             }
+            else
+            {
+                if (GUILayout.Button("ForceExit", GUILayout.Width(100)))
+                {
+                    if (logReader != null)
+                    {
+                        logReader.ForceExit();
+                    }
+                }
+
+            }
             EditorGUILayout.EndHorizontal();
-            if (logReader != null && 0.0f < logReader.Progress && logReader.Progress < 1.0f)
+            if (IsExecute() )
             {
                 EditorGUILayout.LabelField("Progress " + logReader.Progress * 100.0f + "%");
             }
@@ -139,11 +154,19 @@ namespace UTJ.ProfilerReader.UI {
             {
                 for (int i = 0; i < fileWriterFlags.Count; ++i)
                 {
-                    this.fileWriterFlags[i].flag = EditorGUILayout.Toggle(this.fileWriterFlags[i].name , this.fileWriterFlags[i].flag );
+                    EditorGUILayout.BeginHorizontal();
+                    this.fileWriterFlags[i].flag = EditorGUILayout.Toggle(this.fileWriterFlags[i].flag ,GUILayout.Width(20) );
+                    EditorGUILayout.LabelField(this.fileWriterFlags[i].name);
+                    EditorGUILayout.EndHorizontal();
                 }
             }
 
             EditorGUILayout.LabelField("The results are in csv file.");
+        }
+
+        private bool IsExecute()
+        {
+            return (logReader != null && 0.0f < logReader.Progress && logReader.Progress < 1.0f);
         }
 
 

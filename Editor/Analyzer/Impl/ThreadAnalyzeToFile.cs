@@ -5,7 +5,7 @@ using UTJ.ProfilerReader.BinaryData;
 namespace UTJ.ProfilerReader.Analyzer
 {
 
-    public class ThreadAnalyzeToFile : IAnalyzeFileWriter
+    public class ThreadAnalyzeToFile : AnalyzeToTextbaseFileBase
     {
         private class ThreadViewData
         {
@@ -57,7 +57,7 @@ namespace UTJ.ProfilerReader.Analyzer
 
         const string FrameWholeDataSpecialKey = "CPUTotal";
 
-        public void CollectData(ProfilerFrameData frameData)
+        public override void CollectData(ProfilerFrameData frameData)
         {
             // 特別枠で frameDataのＣＰＵ時間を追加
             ThreadViewData frameViewData = null;
@@ -154,9 +154,9 @@ namespace UTJ.ProfilerReader.Analyzer
         /// <summary>
         /// 結果書き出し
         /// </summary>
-        public void WriteResultFile(string path)
+        protected override string GetResultText()
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder(1024 * 1024);
+            CsvStringGenerator csvStringGenerator = new CsvStringGenerator();
             int frameNum = 0;
             var threadViewDataList = new List<ThreadViewData>(viewData.Values);
 
@@ -164,19 +164,19 @@ namespace UTJ.ProfilerReader.Analyzer
             {
                 if (data.threadName == FrameWholeDataSpecialKey)
                 {
-                    sb.Append(data.threadName).Append(",").Append(",");
+                    csvStringGenerator.AppendColumn(data.threadName).AppendColumn("");
                 }
                 else
                 {
-                    sb.Append(data.threadName).Append("(msec)").Append(",");
-                    sb.Append("idle(msec)").Append(",");
-                    sb.Append("working(msec)").Append(",");
-                    sb.Append("rootBlock").Append(",");
-                    sb.Append("idleBlock").Append(",").Append(",");
+                    csvStringGenerator.AppendColumn(data.threadName + "(msec)");
+                    csvStringGenerator.AppendColumn("idle(msec)");
+                    csvStringGenerator.AppendColumn("working(msec)");
+                    csvStringGenerator.AppendColumn("rootBlock");
+                    csvStringGenerator.AppendColumn("idleBlock").AppendColumn("");
                 }
                 frameNum = ProfilerLogUtil.Max(data.maxFrame, frameNum);
             }
-            sb.Append("\n");
+            csvStringGenerator.NextRow();
 
             for (int i = 0; i < frameNum; ++i)
             {
@@ -187,23 +187,26 @@ namespace UTJ.ProfilerReader.Analyzer
                     data.GetMSecData(i, out total, out idle, out totalCnt, out idleCnt);
                     if (data.threadName == FrameWholeDataSpecialKey)
                     {
-                        sb.Append(total).Append(",").Append(",");
+                        csvStringGenerator.AppendColumn(total).AppendColumn("");
                     }
                     else
                     {
-                        sb.Append(total).Append(",").Append(idle).Append(",").Append(total - idle).Append(",");
-                        sb.Append(totalCnt).Append(",").Append(idleCnt).Append(",").Append(",");
+                        csvStringGenerator.AppendColumn(total).AppendColumn(idle).AppendColumn(total - idle);
+                        csvStringGenerator.AppendColumn(totalCnt).AppendColumn(idleCnt).AppendColumn("");
                     }
                 }
-                sb.Append("\n");
+                csvStringGenerator.NextRow();
             }
-            System.IO.File.WriteAllText(path, sb.ToString());
+            return csvStringGenerator.ToString();
+        }
+        
+        protected override string FooterName
+        {
+            get
+            {
+                return "_result.csv";
+            }
         }
 
-        public string ConvertPath(string originPath)
-        {
-            var path = originPath.Replace(".", "_") + "_result.csv";
-            return path;
-        }
     }
 }

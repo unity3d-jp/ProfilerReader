@@ -5,7 +5,7 @@ using UTJ.ProfilerReader.BinaryData;
 
 namespace UTJ.ProfilerReader.Analyzer
 {
-    public class MainThreadAnalyzeToFile : IAnalyzeFileWriter
+    public class MainThreadAnalyzeToFile : AnalyzeToTextbaseFileBase
     {
         private class SampleData
         {
@@ -45,7 +45,7 @@ namespace UTJ.ProfilerReader.Analyzer
         private int frameNum = 0;
 
 
-        public void CollectData(ProfilerFrameData frameData)
+        public override void CollectData(ProfilerFrameData frameData)
         {
             // 特別枠で frameDataのＣＰＵ時間を追加
             // 同一フレーム内に同じスレッド名が複数できるので…
@@ -104,14 +104,15 @@ namespace UTJ.ProfilerReader.Analyzer
             sampleData.Called(selfMsec, execMsec);
         }
 
-                /// <summary>
+        /// <summary>
         /// 結果書き出し
         /// </summary>
-        public void WriteResultFile(string path)
+        protected override string GetResultText()
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder(1024 * 1024);
-            sb.Append("name,fullname,callNum,self,sum(msec),perFrame(msec),min(msec),max(msec),total,sum(msec),perFrame(msec),min(msec),max(msec),\n");
-
+            CsvStringGenerator csvStringGenerator = new CsvStringGenerator();
+            csvStringGenerator.AppendColumn("name").AppendColumn("fullname").AppendColumn("callNum").
+                AppendColumn("self").AppendColumn("sum(msec)").AppendColumn("perFrame(msec)").AppendColumn("min(msec)").AppendColumn("max(msec)").
+                AppendColumn("total").AppendColumn("sum(msec)").AppendColumn("perFrame(msec)").AppendColumn("min(msec)").AppendColumn("max(msec)").NextRow();
             var sampleDataList = new List<SampleData>(samples.Values);
             sampleDataList.Sort((a, b) =>
             {
@@ -126,34 +127,32 @@ namespace UTJ.ProfilerReader.Analyzer
             });
             foreach (var sampleData in sampleDataList)
             {
-                sb.Append(sampleData.sampleName.Replace("\n", "")).Append(",").
-                    Append(sampleData.fullName.Replace("\n", "")).Append(",").
-                    Append(sampleData.callNum).Append(",").Append(",");
+                csvStringGenerator.AppendColumn(sampleData.sampleName).
+                    AppendColumn(sampleData.fullName).
+                    AppendColumn(sampleData.callNum).AppendColumn("");
 
-                sb.Append(sampleData.totalSelfMsec).Append(",").
-                    Append(sampleData.totalSelfMsec / frameNum).Append(",").
-                    Append(sampleData.selfMinMSec).Append(",").
-                    Append(sampleData.selfMaxMsec).Append(",").Append(",");
+                csvStringGenerator.AppendColumn(sampleData.totalSelfMsec).
+                    AppendColumn(sampleData.totalSelfMsec / frameNum).
+                    AppendColumn(sampleData.selfMinMSec).
+                    AppendColumn(sampleData.selfMaxMsec).AppendColumn("");
 
 
-                sb.Append(sampleData.totalExecMsec).Append(",").
-                    Append(sampleData.totalExecMsec / frameNum).Append(",").
-                    Append(sampleData.execMinMSec).Append(",").
-                    Append(sampleData.execMaxMsec).Append(",");
-                
-                sb.Append("\n");
+                csvStringGenerator.AppendColumn(sampleData.totalExecMsec).
+                    AppendColumn(sampleData.totalExecMsec / frameNum).
+                    AppendColumn(sampleData.execMinMSec).
+                    AppendColumn(sampleData.execMaxMsec);
+                csvStringGenerator.NextRow();
             }
 
-            System.IO.File.WriteAllText(path, sb.ToString());
+            return csvStringGenerator.ToString();
+        }
+        protected override string FooterName
+        {
+            get
+            {
+                return "_main_self.csv";
+            }
+        }
 
-        }
-        public string ConvertPath(string originPath)
-        {
-            var path = originPath.Replace(".", "_") + "_main_self.csv";
-            return path;
-        }
-        public MainThreadAnalyzeToFile()
-        {
-        }
     }
 }

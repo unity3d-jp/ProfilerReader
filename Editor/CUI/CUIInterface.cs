@@ -91,13 +91,7 @@ namespace UTJ.ProfilerReader
             var logReader = ProfilerLogUtil.CreateLogReader(inputFile);
             currentReader = logReader;
 
-            List<IAnalyzeFileWriter> analyzeExecutes = new List<IAnalyzeFileWriter>();
-            analyzeExecutes.Add(new ThreadAnalyzeToFile());
-            analyzeExecutes.Add(new WorkerJobAnalyzeToFile());
-            analyzeExecutes.Add(new MainThreadAnalyzeToFile());
-            analyzeExecutes.Add(new MemoryAnalyzeToFile());
-            analyzeExecutes.Add(new RenderingAnalyzeToFile());
-            analyzeExecutes.Add(new RenderThreadToFile());
+            List<IAnalyzeFileWriter> analyzeExecutes = AnalyzerUtil.CreateAnalyzerInterfaceObjects();
 
             var frameData = logReader.ReadFrameData();
 
@@ -138,8 +132,7 @@ namespace UTJ.ProfilerReader
             }
             foreach (var analyzer in analyzeExecutes)
             {
-                string path = System.IO.Path.Combine(outputDir , analyzer.ConvertPath(System.IO.Path.GetFileName( inputFile) ) );
-                analyzer.WriteResultFile(path);
+                analyzer.WriteResultFile(System.IO.Path.GetFileName(inputFile), outputDir);
             }
 
             return retCode;

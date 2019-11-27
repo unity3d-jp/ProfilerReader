@@ -5,7 +5,7 @@ using UTJ.ProfilerReader.BinaryData;
 
 namespace UTJ.ProfilerReader.Analyzer
 {
-    public class WorkerJobAnalyzeToFile : IAnalyzeFileWriter
+    public class WorkerJobAnalyzeToFile : AnalyzeToTextbaseFileBase
     {
         private class WorkerThreadSample
         {
@@ -72,7 +72,7 @@ namespace UTJ.ProfilerReader.Analyzer
             return;
         }
 
-        public void CollectData(ProfilerFrameData frameData)
+        public override void CollectData(ProfilerFrameData frameData)
         {
             // 特別枠で frameDataのＣＰＵ時間を追加
             // 同一フレーム内に同じスレッド名が複数できるので…
@@ -88,10 +88,10 @@ namespace UTJ.ProfilerReader.Analyzer
         /// <summary>
         /// 結果書き出し
         /// </summary>
-        public void WriteResultFile(string path)
+        protected override string GetResultText()
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder(1024 * 1024);
-            sb.Append("name,sum(msec),call,min(msec),max(msec),\n");
+            CsvStringGenerator csvStringGenerator = new CsvStringGenerator();
+            csvStringGenerator.AppendColumn("name").AppendColumn("sum(msec)").AppendColumn("call").AppendColumn("min(msec)").AppendColumn("max(msec)").NextRow();
 
             var sampleDataList = new List<WorkerThreadSample>(samples.Values);
             sampleDataList.Sort((a, b) =>
@@ -108,23 +108,25 @@ namespace UTJ.ProfilerReader.Analyzer
             });
             foreach (var sampleData in sampleDataList)
             {
-                sb.Append(sampleData.sampleName).Append(",").
-                    Append(sampleData.sumMsec).Append(",").
-                    Append(sampleData.callNum).Append(",").
-                    Append(sampleData.minMSec).Append(",").
-                    Append(sampleData.maxMsec).Append(",");
-
-                sb.Append("\n");
+                csvStringGenerator.AppendColumn(sampleData.sampleName).
+                    AppendColumn(sampleData.sumMsec).
+                    AppendColumn(sampleData.callNum).
+                    AppendColumn(sampleData.minMSec).
+                    AppendColumn(sampleData.maxMsec);
+                csvStringGenerator.NextRow();
             }
 
-            System.IO.File.WriteAllText(path, sb.ToString());
+            return csvStringGenerator.ToString();
+        }
+        
+        protected override string FooterName
+        {
+            get
+            {
+                return "_worker.csv";
+            }
         }
 
-        public string ConvertPath(string originPath)
-        {
-            var path = originPath.Replace(".", "_") + "_worker.csv";
-            return path;
-        }
     }
 
 }
