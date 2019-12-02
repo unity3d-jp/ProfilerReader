@@ -13,7 +13,7 @@ namespace UTJ.ProfilerReader.Analyzer
 
     public interface IAnalyzeFileWriter
     {
-        void SetInfo(ProfilerLogFormat logformat, uint dataversion, ushort platform);
+        void SetInfo(ProfilerLogFormat logformat,string unityVersion, uint dataversion, ushort platform);
 
         void CollectData(ProfilerFrameData frameData);
 

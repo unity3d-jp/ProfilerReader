@@ -22,10 +22,13 @@ namespace UTJ.ProfilerReader.Analyzer
 
             public int callNum = 0;
 
-            public SampleData(string fname, string name)
+            public string categoryName;
+
+            public SampleData(string fname, string name,string category)
             {
                 this.sampleName = name;
                 this.fullName = fname;
+                this.categoryName = category;
             }
 
             public void Called(float selfMsec, float execMsec)
@@ -76,7 +79,8 @@ namespace UTJ.ProfilerReader.Analyzer
         {
             if (!string.IsNullOrEmpty(sample.sampleName))
             {
-                AddSampleData(sample.fullSampleName, sample.sampleName, sample.selfTimeUs / 1000.0f, sample.timeUS / 1000.0f);
+                string category = UTJ.ProfilerReader.ProtocolData.GetCategory(unityVersion, sample.group);
+                AddSampleData(sample.fullSampleName, sample.sampleName, category, sample.selfTimeUs / 1000.0f, sample.timeUS / 1000.0f);
             }
             if (sample.children != null)
             {
@@ -88,13 +92,13 @@ namespace UTJ.ProfilerReader.Analyzer
             return;
         }
 
-        private void AddSampleData(string fullName, string sampleName, float selfMsec, float execMsec)
+        private void AddSampleData(string fullName, string sampleName,string categoryName, float selfMsec, float execMsec)
         {
 
             SampleData sampleData = null;
             if (!this.samples.TryGetValue(fullName, out sampleData))
             {
-                sampleData = new SampleData(fullName, sampleName);
+                sampleData = new SampleData(fullName, sampleName,categoryName);
                 this.samples.Add(fullName, sampleData);
             }
             if (selfMsec < 0.0f)
@@ -110,9 +114,10 @@ namespace UTJ.ProfilerReader.Analyzer
         protected override string GetResultText()
         {
             CsvStringGenerator csvStringGenerator = new CsvStringGenerator();
-            csvStringGenerator.AppendColumn("name").AppendColumn("fullname").AppendColumn("callNum").
+            csvStringGenerator.AppendColumn("name").AppendColumn("fullname").AppendColumn("category").AppendColumn("callNum").
                 AppendColumn("self").AppendColumn("sum(msec)").AppendColumn("perFrame(msec)").AppendColumn("min(msec)").AppendColumn("max(msec)").
-                AppendColumn("total").AppendColumn("sum(msec)").AppendColumn("perFrame(msec)").AppendColumn("min(msec)").AppendColumn("max(msec)").NextRow();
+                AppendColumn("total").AppendColumn("sum(msec)").AppendColumn("perFrame(msec)").AppendColumn("min(msec)").AppendColumn("max(msec)").
+                NextRow();
             var sampleDataList = new List<SampleData>(samples.Values);
             sampleDataList.Sort((a, b) =>
             {
@@ -129,6 +134,7 @@ namespace UTJ.ProfilerReader.Analyzer
             {
                 csvStringGenerator.AppendColumn(sampleData.sampleName).
                     AppendColumn(sampleData.fullName).
+                    AppendColumn(sampleData.categoryName).
                     AppendColumn(sampleData.callNum).AppendColumn("");
 
                 csvStringGenerator.AppendColumn(sampleData.totalSelfMsec).

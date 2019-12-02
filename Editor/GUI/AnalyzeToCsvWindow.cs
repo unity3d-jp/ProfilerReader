@@ -25,6 +25,7 @@ namespace UTJ.ProfilerReader.UI {
         private List<FileWriterFlag> fileWriterFlags = new List<FileWriterFlag>();
         private List<IAnalyzeFileWriter> analyzeExecutes = new List<IAnalyzeFileWriter>();
         private ILogReaderPerFrameData logReader = null;
+        private bool isFirstFrame = true;
         private Vector2 scrollPos;
         private string filePath;
 
@@ -53,6 +54,11 @@ namespace UTJ.ProfilerReader.UI {
                 if (logReader != null)
                 {
                     var frameData = logReader.ReadFrameData();
+                    if (isFirstFrame)
+                    {
+                        SetAnalyzerInfo(analyzeExecutes, logReader);
+                        isFirstFrame = false;
+                    }
                     if (frameData == null)
                     {
                         // 終わったタイミングでcsv 
@@ -124,11 +130,13 @@ namespace UTJ.ProfilerReader.UI {
                     else
                     {
                         logReader = ProfilerLogUtil.CreateLogReader(filePath);
+                        isFirstFrame = true;
                         for (int i = 0; i < fileWriterFlags.Count; ++i)
                         {
                             if (this.fileWriterFlags[i].flag)
                             {
-                                analyzeExecutes.Add(System.Activator.CreateInstance(fileWriterFlags[i].type) as IAnalyzeFileWriter);
+                                var analyzer = System.Activator.CreateInstance(fileWriterFlags[i].type) as IAnalyzeFileWriter;
+                                analyzeExecutes.Add(analyzer);
                             }
                         }
                     }
@@ -167,6 +175,20 @@ namespace UTJ.ProfilerReader.UI {
         private bool IsExecute()
         {
             return (logReader != null && 0.0f < logReader.Progress && logReader.Progress < 1.0f);
+        }
+
+
+        private void SetAnalyzerInfo(List<IAnalyzeFileWriter> analyzeExecutes, ILogReaderPerFrameData logReader)
+        {
+            ProfilerLogFormat format = ProfilerLogFormat.TypeData;
+            if (logReader.GetType() == typeof(UTJ.ProfilerReader.RawData.ProfilerRawLogReader))
+            {
+                format = ProfilerLogFormat.TypeRaw;
+            }
+            foreach (var analyzer in analyzeExecutes)
+            {
+                analyzer.SetInfo(format, Application.unityVersion, logReader.GetLogFileVersion(), logReader.GetLogFilePlatform());
+            }
         }
 
 

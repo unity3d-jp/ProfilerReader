@@ -25,11 +25,16 @@ namespace UTJ.ProfilerReader.Analyzer
         {
             get;
         }
+        protected string unityVersion
+        {
+            get;private set;
+        }
 
-        public void SetInfo(ProfilerLogFormat format, uint dataversion, ushort platform) {
+        public void SetInfo(ProfilerLogFormat format,string unityVer, uint dataversion, ushort platform) {
             this.logFormat = format;
             this.logVersion = dataversion;
             this.logPlatform = platform;
+            this.unityVersion = unityVer;
         }
 
         public abstract void CollectData(ProfilerFrameData frameData);

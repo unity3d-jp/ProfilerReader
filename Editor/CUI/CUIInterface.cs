@@ -20,6 +20,8 @@ namespace UTJ.ProfilerReader
         private static ILogReaderPerFrameData currentReader = null;
         private static bool timeouted = false;
 
+        private static string overrideUnityVersion = null;
+
 
         public static void SetTimeout(int sec)
         {
@@ -59,6 +61,12 @@ namespace UTJ.ProfilerReader
                 if (args[i] == "-PH.timeout")
                 {
                     SetTimeout(int.Parse(args[i + 1]));
+                    i += 1;
+                }
+                if( args[i] == "-PH.overrideUnityVersion")
+                {
+                    overrideUnityVersion = args[i + 1];
+                    i += 1;
                 }
                 if (args[i] == "-PH.exitcode")
                 {
@@ -94,8 +102,9 @@ namespace UTJ.ProfilerReader
             List<IAnalyzeFileWriter> analyzeExecutes = AnalyzerUtil.CreateAnalyzerInterfaceObjects();
 
             var frameData = logReader.ReadFrameData();
+            SetAnalyzerInfo(analyzeExecutes, logReader);
 
-            if( frameData == null)
+            if ( frameData == null)
             {
                 Debug.LogError("No FrameDataFile " + inputFile);
             }
@@ -136,6 +145,23 @@ namespace UTJ.ProfilerReader
             }
 
             return retCode;
+        }
+        private static void SetAnalyzerInfo(List<IAnalyzeFileWriter> analyzeExecutes, ILogReaderPerFrameData logReader)
+        {
+            ProfilerLogFormat format = ProfilerLogFormat.TypeData;
+            if (logReader.GetType() == typeof(UTJ.ProfilerReader.RawData.ProfilerRawLogReader))
+            {
+                format = ProfilerLogFormat.TypeRaw;
+            }
+            string unityVersion = Application.unityVersion;
+            if ( !string.IsNullOrEmpty(overrideUnityVersion))
+            {
+                unityVersion = overrideUnityVersion;
+            }
+            foreach (var analyzer in analyzeExecutes)
+            {
+                analyzer.SetInfo(format, unityVersion, logReader.GetLogFileVersion(), logReader.GetLogFilePlatform());
+            }
         }
     }
 }
