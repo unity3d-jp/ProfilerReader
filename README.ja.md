@@ -1,23 +1,22 @@
 # ProfilerReader
-Tools for analyze profiler log data.<br />
-Read this in other languages: English, [日本語](README.ja.md)<br />
+プロファイラーのログファイルを解析するツールです<br />
+Read this in other languages: [English](README.md), 日本語<br />
 
-## Summary
-With this tool, you can analyze the binary log of "Unity Profiler".
+## 概要
+このツールを "Unity Profiler".
 For example, generate csv files that shows Samples allocating many Managed Heap from "Unity Profiler" binary log.
 
-## Avalable versions
+## 対応バージョン
 5.6 / 2017.1 / 2017.2 / 2017.3 / 2017.4 / 2018.1 / 2018.2 / 2018.3 / 2018.4 
-(WIP)2019.1/2019.2/2019.3
+対応中：2019.1/2019.2/2019.3
 
-## GUI Interface
+## GUI操作について
 
-## CUI Interface
-### Example Command
+## CUI操作について
+### サンプルコマンド
 Unity.exe -batchMode -projectPath "ProjectPath" -logFile .\Editor.log -executeMethod UTJ.ProfilerReader.CUIInterface.ProfilerToCsv -PH.inputFile "Binary logFile(.data/.raw)" -PH.timeout 2400 -PH.log
 
-And some csv file will be generated at the same path with binaryLog.
-
+バイナリログファイルと同じ場所に、CSVファイルが生成されます。
 
 ## CSV Files:
 
