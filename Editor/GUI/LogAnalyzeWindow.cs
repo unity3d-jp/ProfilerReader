@@ -120,6 +120,7 @@ namespace UTJ.ProfilerReader.UI{
                     else
                     {
                         logReader = ProfilerLogUtil.CreateLogReader(filePath);
+                        logReader.SetUnityVersion(Application.unityVersion);
                         columnList.Clear();
                     }
                 }
