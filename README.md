@@ -1,6 +1,6 @@
-# ProfilerReader
+ï»¿# ProfilerReader
 Tools for analyze profiler log data.<br />
-Read this in other languages: English, [“ú–{Œê](README.ja.md)<br />
+Read this in other languages: English, [æ—¥æœ¬èªž](README.ja.md)<br />
 
 ## Summary
 With this tool, you can analyze the binary log of "Unity Profiler".
