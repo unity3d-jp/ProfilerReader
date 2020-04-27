@@ -16,6 +16,7 @@ namespace UTJ.ProfilerReader.Analyzer
         }
         public CsvStringGenerator AppendColumn(string val)
         {
+            if( val == null) { val = ""; }
             val = val.Replace(',', '.').Replace('\n', ' ');
             stringBuilder.Append(val).Append(',');
             return this;
