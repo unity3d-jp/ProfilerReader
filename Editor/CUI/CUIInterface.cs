@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UTJ.ProfilerReader.Analyzer;
 using UnityEngine;
-
+using System.IO;
 namespace UTJ.ProfilerReader
 {
     public class CUIInterface
@@ -45,6 +45,7 @@ namespace UTJ.ProfilerReader
             string outputDir = null;
             bool exitFlag = true;
             bool logFlag = false;
+            bool isLegacyOutputDirPath = false;
 
             for (int i = 0; i < args.Length; ++i)
             {
@@ -76,8 +77,12 @@ namespace UTJ.ProfilerReader
                 {
                     logFlag = true;
                 }
+                if (args[i] == "-PH.dirLegacy") ;
+                {
+                    isLegacyOutputDirPath = true;
+                }
             }
-            int code = ProfilerToCsv(inputFile, outputDir, logFlag);
+            int code = ProfilerToCsv(inputFile, outputDir, logFlag, isLegacyOutputDirPath);
             if(timeouted)
             {
                 code = TimeoutCode;
@@ -88,12 +93,20 @@ namespace UTJ.ProfilerReader
             }
         }
 
-        public static int ProfilerToCsv(string inputFile,string outputDir,bool logFlag)
+        public static int ProfilerToCsv(string inputFile,string outputDir,bool logFlag,bool isLegacyOutputDirPath)
         {
             int retCode = NormalCode;
             if ( string.IsNullOrEmpty(outputDir))
             {
-                outputDir = System.IO.Path.GetDirectoryName(inputFile);
+                if (isLegacyOutputDirPath)
+                {
+                    outputDir = Path.GetDirectoryName(inputFile);
+                }
+                else
+                {
+                    string file = Path.GetFileName(inputFile);
+                    outputDir = Path.Combine(Path.GetDirectoryName(inputFile), file.Replace('.', '_'));
+                }
             }
 
             var logReader = ProfilerLogUtil.CreateLogReader(inputFile);
@@ -102,7 +115,7 @@ namespace UTJ.ProfilerReader
             List<IAnalyzeFileWriter> analyzeExecutes = AnalyzerUtil.CreateAnalyzerInterfaceObjects();
 
             var frameData = logReader.ReadFrameData();
-            SetAnalyzerInfo(analyzeExecutes, logReader);
+            SetAnalyzerInfo(analyzeExecutes, logReader,outputDir,inputFile);
 
             if ( frameData == null)
             {
@@ -146,7 +159,9 @@ namespace UTJ.ProfilerReader
 
             return retCode;
         }
-        private static void SetAnalyzerInfo(List<IAnalyzeFileWriter> analyzeExecutes, ILogReaderPerFrameData logReader)
+        private static void SetAnalyzerInfo(List<IAnalyzeFileWriter> analyzeExecutes,
+            ILogReaderPerFrameData logReader,
+            string outDir,string inFile)
         {
             ProfilerLogFormat format = ProfilerLogFormat.TypeData;
             if (logReader.GetType() == typeof(UTJ.ProfilerReader.RawData.ProfilerRawLogReader))
@@ -161,6 +176,7 @@ namespace UTJ.ProfilerReader
             foreach (var analyzer in analyzeExecutes)
             {
                 analyzer.SetInfo(format, unityVersion, logReader.GetLogFileVersion(), logReader.GetLogFilePlatform());
+                analyzer.SetFileInfo(inFile,outDir);
             }
         }
     }

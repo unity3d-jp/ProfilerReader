@@ -13,12 +13,13 @@ namespace UTJ.ProfilerReader.Analyzer
         {
             get; private set;
         }
-        protected uint logVersion{
-            get;private set;
+        protected uint logVersion
+        {
+            get; private set;
         }
         protected ushort logPlatform
         {
-            get;private set;
+            get; private set;
         }
 
         protected abstract string FooterName
@@ -27,10 +28,11 @@ namespace UTJ.ProfilerReader.Analyzer
         }
         protected string unityVersion
         {
-            get;private set;
+            get; private set;
         }
 
-        public void SetInfo(ProfilerLogFormat format,string unityVer, uint dataversion, ushort platform) {
+        public void SetInfo(ProfilerLogFormat format, string unityVer, uint dataversion, ushort platform)
+        {
             this.logFormat = format;
             this.logVersion = dataversion;
             this.logPlatform = platform;
@@ -41,7 +43,8 @@ namespace UTJ.ProfilerReader.Analyzer
 
         protected abstract string GetResultText();
 
-        public void WriteResultFile(string logfile , string outputpath) {
+        public void WriteResultFile(string logfile, string outputpath)
+        {
             try
             {
                 var path = System.IO.Path.Combine(outputpath, logfile.Replace(".", "_") + this.FooterName);
@@ -54,6 +57,9 @@ namespace UTJ.ProfilerReader.Analyzer
             }
         }
 
+        public void SetFileInfo(string logfile, string outputpath)
+        {
 
+        }
     }
 }

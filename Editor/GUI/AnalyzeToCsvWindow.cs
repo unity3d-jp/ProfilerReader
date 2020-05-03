@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UTJ.ProfilerReader.Analyzer;
 using System.Reflection;
-using UnityEngine;
+using System.IO;
 
 namespace UTJ.ProfilerReader.UI {
 
@@ -29,7 +29,8 @@ namespace UTJ.ProfilerReader.UI {
         private Vector2 scrollPos;
         private string filePath;
 
-
+        private string outputDir;
+        private string logfilename;
 
         [MenuItem("Tools/ProfilerReader/AnalyzeToCsv")]
         public static void CreateWindow()
@@ -56,6 +57,7 @@ namespace UTJ.ProfilerReader.UI {
                     var frameData = logReader.ReadFrameData();
                     if (isFirstFrame)
                     {
+                        InitOutputPathInfo();
                         SetAnalyzerInfo(analyzeExecutes, logReader);
                         isFirstFrame = false;
                     }
@@ -63,8 +65,6 @@ namespace UTJ.ProfilerReader.UI {
                     {
                         // 終わったタイミングでcsv 
                         string dialogStr = "Write to csv files\n";
-                        string outputDir = System.IO.Path.GetDirectoryName(this.filePath);
-                        string logfilename = System.IO.Path.GetFileName(this.filePath);
 
                         foreach (var analyzer in this.analyzeExecutes)
                         {
@@ -177,9 +177,19 @@ namespace UTJ.ProfilerReader.UI {
             return (logReader != null && 0.0f < logReader.Progress && logReader.Progress < 1.0f);
         }
 
+        private void InitOutputPathInfo()
+        {
+            this.logfilename = Path.GetFileName(this.filePath);
+            this.outputDir = Path.Combine(Path.GetDirectoryName(this.filePath), logfilename.Replace('.', '_'));
+            if (!Directory.Exists(this.outputDir))
+            {
+                Directory.CreateDirectory(this.outputDir);
+            }
+        }
 
         private void SetAnalyzerInfo(List<IAnalyzeFileWriter> analyzeExecutes, ILogReaderPerFrameData logReader)
         {
+
             ProfilerLogFormat format = ProfilerLogFormat.TypeData;
             if (logReader.GetType() == typeof(UTJ.ProfilerReader.RawData.ProfilerRawLogReader))
             {
@@ -188,6 +198,7 @@ namespace UTJ.ProfilerReader.UI {
             foreach (var analyzer in analyzeExecutes)
             {
                 analyzer.SetInfo(format, Application.unityVersion, logReader.GetLogFileVersion(), logReader.GetLogFilePlatform());
+                analyzer.SetFileInfo(logfilename, this.outputDir);
             }
         }
 
