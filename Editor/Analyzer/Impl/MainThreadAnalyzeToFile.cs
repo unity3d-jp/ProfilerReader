@@ -96,14 +96,21 @@ namespace UTJ.ProfilerReader.Analyzer
         {
 
             SampleData sampleData = null;
+            if (selfMsec < 0.0f)
+            {
+                ProfilerLogUtil.logErrorString("minus Param " + sampleName + ":" + selfMsec + ":" + execMsec);
+                return;
+            }
+            if (selfMsec > 1000.0f * 50.0f)
+            {
+                ProfilerLogUtil.logErrorString("minus Param " + sampleName + ":" + selfMsec + ":" + execMsec);
+                return;
+            }
+
             if (!this.samples.TryGetValue(fullName, out sampleData))
             {
                 sampleData = new SampleData(fullName, sampleName,categoryName);
                 this.samples.Add(fullName, sampleData);
-            }
-            if (selfMsec < 0.0f)
-            {
-                ProfilerLogUtil.logErrorString("minus Param " + sampleName + ":" + selfMsec + ":" + execMsec );
             }
             sampleData.Called(selfMsec, execMsec);
         }
