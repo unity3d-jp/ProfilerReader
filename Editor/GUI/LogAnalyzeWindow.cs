@@ -45,7 +45,7 @@ namespace UTJ.ProfilerReader.UI{
         private int pageIndex;
 
 
-        [MenuItem("Tools/ProfilerReader/LogAnalyzer")]
+        [MenuItem("Tools/UTJ/ProfilerReader/LogAnalyzer")]
         public static void CreateWindow()
         {
             EditorWindow.GetWindow<LogAnalyzeWindow>();

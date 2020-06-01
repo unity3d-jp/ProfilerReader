@@ -32,7 +32,7 @@ namespace UTJ.ProfilerReader.UI {
         private string outputDir;
         private string logfilename;
 
-        [MenuItem("Tools/ProfilerReader/AnalyzeToCsv")]
+        [MenuItem("Tools/UTJ/ProfilerReader/AnalyzeToCsv")]
         public static void CreateWindow()
         {
             EditorWindow.GetWindow<AnalyzeToCsvWindow>();
