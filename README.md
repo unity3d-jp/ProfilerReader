@@ -46,6 +46,9 @@ The CPU stats by category in each fraemes.
  -"xxx_gc_result.csv"<br />
 The list that shows "GC.Alloc".
 <br />
+ -"xxx_gc_detail.csv"<br />
+The list of "GC.Alloc" and with Callstackinfo.
+<br />
  -"xxx_gpu_sample.csv"<br />
 The list about GPU status in each frames .
 <br />
@@ -73,5 +76,6 @@ The list about GPU for Universal RP.
  -"xxx_worker.csv"<br />
 The list about workerThread status.
 <br />
-
-
+ - "xxx_jitInfos.csv"<br />
+The list of callstack symbol infos.( should enable "Profiler.enableAllocationCallstacks").
+<br />

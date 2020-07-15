@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using UnityEngine.Profiling;
 using UTJ.ProfilerReader.BinaryData;
 
 using UTJ.ProfilerReader.BinaryData.Stats;
@@ -64,6 +67,8 @@ namespace UTJ.ProfilerReader.Analyzer
             {
                 return;
             }
+
+
             HashSet<ProfilerSample> doneList = new HashSet<ProfilerSample>();
             foreach( var thread in frameData.m_ThreadData)
             {
@@ -82,6 +87,8 @@ namespace UTJ.ProfilerReader.Analyzer
                 }
             }
         }
+
+
 
 
         /// <summary>
