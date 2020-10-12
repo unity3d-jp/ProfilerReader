@@ -7,7 +7,7 @@ With this tool, you can analyze the binary log of "Unity Profiler".
 For example, generate csv files that shows Samples allocating many Managed Heap from "Unity Profiler" binary log.
 
 ## Avalable versions
-5.6 / 2017.1 / 2017.2 / 2017.3 / 2017.4 / 2018.1 / 2018.2 / 2018.3 / 2018.4 /2019.1/2019.2/2019.3
+5.6 / 2017.1 / 2017.2 / 2017.3 / 2017.4 / 2018.1 / 2018.2 / 2018.3 / 2018.4 /2019.1/2019.2/2019.3/2019.4
 
 ## Filter Search
 Call "Tools->UTJ->ProfilerReader->AnalyzeToCsv" and then this window will be displayed.<br />
