@@ -1,9 +1,12 @@
 {
-    "name": "UTJ.ProfilerReader.Editor",
+    "name": "ProfilerReader.Test.Editor",
     "references": [
-        "UTJ.ProfilerReader.Core"
+        "UTJ.ProfilerReader.Core",
+        "UTJ.ProfilerReader.Editor"
     ],
-    "optionalUnityReferences": [],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
     "includePlatforms": [
         "Editor"
     ],
@@ -12,5 +15,6 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": []
 }
