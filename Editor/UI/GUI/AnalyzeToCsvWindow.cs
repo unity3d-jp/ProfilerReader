@@ -31,6 +31,12 @@ namespace UTJ.ProfilerReader.UI {
 
         private string outputDir;
         private string logfilename;
+        private bool isWindowExists;
+
+        private bool forceStopRequest = false;
+        private bool requestDialogFlag = false;
+
+        private bool isMultiThreadExecute = true;
 
         [MenuItem("Tools/UTJ/ProfilerReader/AnalyzeToCsv")]
         public static void CreateWindow()
@@ -40,6 +46,7 @@ namespace UTJ.ProfilerReader.UI {
 
         private void OnEnable()
         {
+            this.isWindowExists = true;
             this.fileWriterFlags.Clear();
             var types = AnalyzerUtil.GetInterfaceType<IAnalyzeFileWriter>();
             foreach( var t in types)
@@ -47,59 +54,80 @@ namespace UTJ.ProfilerReader.UI {
                 this.fileWriterFlags.Add(new FileWriterFlag() { name = t.Name, type = t, flag = true });
             }
         }
-
-        void Update()
+        private void OnDisable()
         {
+            this.isWindowExists = false;
+        }
+
+        private void UpdateThread()
+        {
+            while (this.isWindowExists)
+            {
+                if(!ExecuteFrame()){
+                    return;
+                }
+            }
+        }
+
+        bool ExecuteFrame()
+        {
+            if (logReader == null)
+            {
+                return false;
+            }
             try
             {
-                if (logReader != null)
+                var frameData = logReader.ReadFrameData();
+                if (isFirstFrame)
                 {
-                    var frameData = logReader.ReadFrameData();
-                    if (isFirstFrame)
-                    {
-                        InitOutputPathInfo();
-                        SetAnalyzerInfo(analyzeExecutes, logReader);
-                        isFirstFrame = false;
-                    }
-                    if (frameData == null)
-                    {
-                        // 終わったタイミングでcsv 
-                        string dialogStr = "Write to csv files\n";
-
-                        foreach (var analyzer in this.analyzeExecutes)
-                        {
-                            analyzer.WriteResultFile( logfilename , outputDir);
-                            dialogStr += analyzer.GetType() + "\n";
-                        }
-                        EditorUtility.DisplayDialog("Result", dialogStr, "ok");
-                        analyzeExecutes.Clear();
-                        logReader = null;
-                        this.Repaint();
-                        return;
-                    }
+                    InitOutputPathInfo();
+                    SetAnalyzerInfo(analyzeExecutes, logReader);
+                    isFirstFrame = false;
+                }
+                if (frameData == null || forceStopRequest)
+                {
+                    // write all result
                     foreach (var analyzer in this.analyzeExecutes)
                     {
-                        try
-                        {
-                            analyzer.CollectData(frameData);
-                        }
-                        catch (System.Exception e)
-                        {
-                            Debug.LogError(e);
-                        }
+                        analyzer.WriteResultFile(logfilename, outputDir);
                     }
-                    System.GC.Collect();
-                    this.Repaint();
+                    requestDialogFlag = true;
+                    logReader = null;
+                    return false;
                 }
+                foreach (var analyzer in this.analyzeExecutes)
+                {
+                    try
+                    {
+                        analyzer.CollectData(frameData);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError(e);
+                    }
+                }
+                System.GC.Collect();
+
             }
             catch (System.Exception e)
             {
                 logReader = null;
                 Debug.LogError(e);
             }
+            return true;
         }
 
-
+        private void DisplayDialog()
+        {
+            requestDialogFlag = false;
+            string dialogStr = "Write to csv files\n";
+            foreach (var analyzer in this.analyzeExecutes)
+            {
+                dialogStr += analyzer.GetType() + "\n";
+            }
+            EditorUtility.DisplayDialog("Result", dialogStr, "ok");
+            analyzeExecutes.Clear();
+        }
 
 
         void OnGUI()
@@ -129,16 +157,7 @@ namespace UTJ.ProfilerReader.UI {
                     }
                     else
                     {
-                        logReader = ProfilerLogUtil.CreateLogReader(filePath);
-                        isFirstFrame = true;
-                        for (int i = 0; i < fileWriterFlags.Count; ++i)
-                        {
-                            if (this.fileWriterFlags[i].flag)
-                            {
-                                var analyzer = System.Activator.CreateInstance(fileWriterFlags[i].type) as IAnalyzeFileWriter;
-                                analyzeExecutes.Add(analyzer);
-                            }
-                        }
+                        StartAnalyze();
                     }
                 }
             }
@@ -146,12 +165,8 @@ namespace UTJ.ProfilerReader.UI {
             {
                 if (GUILayout.Button("ForceExit", GUILayout.Width(100)))
                 {
-                    if (logReader != null)
-                    {
-                        logReader.ForceExit();
-                    }
+                    forceStopRequest = true;
                 }
-
             }
             EditorGUILayout.EndHorizontal();
             if (IsExecute() )
@@ -170,6 +185,45 @@ namespace UTJ.ProfilerReader.UI {
             }
 
             EditorGUILayout.LabelField("The results are in csv file.");
+        }
+
+        private void StartAnalyze()
+        {
+            logReader = ProfilerLogUtil.CreateLogReader(filePath);
+            isFirstFrame = true;
+            forceStopRequest = false;
+            analyzeExecutes.Clear();
+            for (int i = 0; i < fileWriterFlags.Count; ++i)
+            {
+                if (this.fileWriterFlags[i].flag)
+                {
+                    var analyzer = System.Activator.CreateInstance(fileWriterFlags[i].type) as IAnalyzeFileWriter;
+                    analyzeExecutes.Add(analyzer);
+                }
+            }
+            // start analyze
+            if (isMultiThreadExecute)
+            {
+                var thread = new System.Threading.Thread(this.UpdateThread);
+                thread.Start();
+            }
+        }
+
+
+        private void Update()
+        {
+            if (!isMultiThreadExecute)
+            {
+                this.ExecuteFrame();
+            }
+            if (IsExecute())
+            {
+                this.Repaint();
+            }
+            if (requestDialogFlag)
+            {
+                this.DisplayDialog();
+            }
         }
 
         private bool IsExecute()

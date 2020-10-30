@@ -79,6 +79,10 @@ namespace UTJ.ProfilerReader.BinaryData
             }
             if (isComplete) { return null; }
             this.logfileVersion = (uint)data.dataVersion;
+            if(data.frameData != null)
+            {
+                data.frameData.ApplyCountersToDeplicatedStats();
+            }
             return data.frameData;
         }
 

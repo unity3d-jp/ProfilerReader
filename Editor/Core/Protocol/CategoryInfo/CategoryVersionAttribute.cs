@@ -5,13 +5,9 @@ namespace UTJ.ProfilerReader.Protocol
     internal class CategoryVersionAttribute : System.Attribute
     {
         public string[] unityVersions;
-        public CategoryVersionAttribute(string version)
+        public CategoryVersionAttribute(params string[] versions)
         {
-            unityVersions = new string[1] { version };
-        }
-        public CategoryVersionAttribute(string v1,string v2)
-        {
-            unityVersions = new string[] { v1,v2 };
+            unityVersions = versions;
         }
 
         private bool IsMatchVersion( string version)

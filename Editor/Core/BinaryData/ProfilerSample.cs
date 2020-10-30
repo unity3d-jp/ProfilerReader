@@ -2,6 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using UTJ.ProfilerReader.BinaryData.Thread;
+using UTJ.ProfilerReader.RawData.Protocol;
 
 namespace UTJ.ProfilerReader
 {
@@ -17,6 +18,15 @@ namespace UTJ.ProfilerReader
             public int nbChildren { get; set; }
             public ProfilerInformation profilerInfo { get; set; }
             public MetaData metaDatas { get; set; }
+
+            public List<MetaData.MetaDataValue> metadataValues
+            {
+                get
+                {
+                    if(metaDatas == null) { return null; }
+                    return metaDatas.metadatas;
+                }
+            }
 
             private static StringBuilder stringBuilderBuffer = new StringBuilder(128);
 
@@ -117,15 +127,24 @@ namespace UTJ.ProfilerReader
             {
                 public string name { get; set; }
                 public ushort group { get; set; }
-                public byte flags { get; set; }
+                public ushort flags { get; set; }
                 public byte isWarning { get; set; }
+
+                // CounterSample?
+                public bool IsCounter
+                {
+                    get
+                    {
+                        return ((flags & 128) == 128);
+                    }
+                }
 
                 public void Read(System.IO.Stream stream)
                 {
                     this.name = ProfilerLogUtil.ReadString(stream);
                     uint data = ProfilerLogUtil.ReadUint(stream);
                     this.group = (ushort)((data >> 16) & 0xffff);
-                    this.flags = (byte)((data >> 8) & 0xff);
+                    this.flags = (ushort)((data >> 0) & 0xffff);
                     this.isWarning = (byte)(data  & 0xff);
                 }
             }
@@ -302,6 +321,7 @@ namespace UTJ.ProfilerReader
                     NumberingChildrenHierarychyLevel(child, level + 1);
                 }
             }
+
 
             #endregion RESOLVE_AFTER_COLLECT_SAMPLES
         }

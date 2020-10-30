@@ -110,8 +110,19 @@ namespace UTJ.ProfilerReader
                     for(int i = 0; i < callStackSampleNum; ++i)
                     {
                         ProfileCallstack profileCallstack = new ProfileCallstack();
-                        profileCallstack.Read(stream);
+                        profileCallstack.Read(stream,version);
                         this.m_CallstackSamples.Add(profileCallstack);
+                    }
+                }
+                if( version >= ProfilerDataStreamVersion.Unity2020_1)
+                {
+                    int flowEventNum = ProfilerLogUtil.ReadInt(stream);
+                    this.m_FlowEvents = new List<FlowEvent>(flowEventNum);
+                    for ( int i = 0; i < flowEventNum; ++i)
+                    {
+                        FlowEvent flowEvent = new FlowEvent();
+                        flowEvent.Read(stream);
+                        this.m_FlowEvents.Add(flowEvent);
                     }
                 }
 

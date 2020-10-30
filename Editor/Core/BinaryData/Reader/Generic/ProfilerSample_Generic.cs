@@ -14,7 +14,15 @@ namespace UTJ.ProfilerReader
 
             internal void Read_Generic(System.IO.Stream stream ,uint version)
             {
-                if (version >= ProfilerDataStreamVersion.Unity2019_3)
+                if (version >= ProfilerDataStreamVersion.Unity2020_2)
+                {
+                    this.timeUS = ProfilerLogUtil.ReadFloat(stream);
+                    this.startTimeUS = ProfilerLogUtil.ReadULong(stream);
+
+                    this.timeUS /= 1e3f;
+                    this.startTimeUS /= 1000;
+                }
+                else if (version >= ProfilerDataStreamVersion.Unity2019_3)
                 {
                     this.timeUS = ProfilerLogUtil.ReadFloat(stream);
                     this.startTimeUS = ProfilerLogUtil.ReadULong(stream);

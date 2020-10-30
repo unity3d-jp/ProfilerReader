@@ -10,6 +10,9 @@ namespace UTJ.ProfilerReader
         public static class ProfilerDataStreamVersion
         {
 
+            public const int Unity2020_2 = 0x20200828;
+            public const int Unity2020_1 = 0x20200312;
+
             public const int Unity2019_3 = 0x20191122;//0x20190514;
             public const int Actual_Unity2019_2 = 0x20180306;
             public const int Actual_Unity2019_1 = 0x20180306;
@@ -121,12 +124,14 @@ namespace UTJ.ProfilerReader
                     case ProfilerDataStreamVersion.Unity2018_3:
                     case ProfilerDataStreamVersion.Actual_Unity2019_1:
                     case ProfilerDataStreamVersion.Unity2019_3:
+                    case ProfilerDataStreamVersion.Unity2020_1:
+                    case ProfilerDataStreamVersion.Unity2020_2:
                         flag = this.frameData.ReadGeneric(stream, frameDataSize, threadCount, frameIndex, 
                             (uint)ProfilerDataStreamVersion.ConvertVersionForExecute(this.dataVersion,unityVersion) );
                         break;
                     default:
                         ProfilerLogUtil.LogError("This log file isn't supported. 0x" + dataVersion.ToString("x"));
-                        break;
+                        throw new System.Exception("This log file isn't supported. 0x" + dataVersion.ToString("x"));
                 }
                 return flag;
             }

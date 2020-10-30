@@ -132,7 +132,8 @@ namespace UTJ.ProfilerReader.RawData.Converter
         public void OnGlobalDataRead(ref SamplerInfo sampleInfo)
         {
 #if UTJ_CHECK
-            Debug.DebugLogWrite.Log("[OnGlobalDataRead] SamplerInfo:" + sampleInfo.samplerId + "  " + sampleInfo.name);
+            Debug.DebugLogWrite.Log("[OnGlobalDataRead] SamplerInfo:" + sampleInfo.samplerId
+                + " flag:" + sampleInfo.flags + " group:" + sampleInfo.group + "  " + sampleInfo.name);
 #endif
             this.dictionaryData.AddSampleInfo(ref sampleInfo);
         }
@@ -364,6 +365,7 @@ namespace UTJ.ProfilerReader.RawData.Converter
             ProfilerSample dest = new ProfilerSample();
             dest.startTimeUS = wrappedData.sample.time;
             dest.profilerInfo = new ProfilerSample.ProfilerInformation();
+            dest.profilerInfo.flags = info.flags;
             dest.profilerInfo.name = info.name;
             dest.profilerInfo.group = info.group;
             // sample withMetadata

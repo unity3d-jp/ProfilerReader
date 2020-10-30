@@ -29,7 +29,8 @@ namespace UTJ.ProfilerReader
             int m_MaxDepth;
             // from 2019.1
             List<uint> m_FrameStatSamples;
-
+            // from 2020.1
+            List<FlowEvent> m_FlowEvents;
 
 
             public string FullName

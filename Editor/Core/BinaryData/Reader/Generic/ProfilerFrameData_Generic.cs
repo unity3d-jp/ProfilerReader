@@ -1,6 +1,7 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UTJ.ProfilerReader.BinaryData.Stats;
 
 namespace UTJ.ProfilerReader
@@ -28,14 +29,7 @@ namespace UTJ.ProfilerReader
                 this.frameIndexFromFile = ProfilerLogUtil.ReadInt(stream);
                 this.realFrame = ProfilerLogUtil.ReadInt(stream);
 
-                if (version >= ProfilerDataStreamVersion.Unity2019_3)
-                {
-                    m_StartTimeUS.ReadAsUlong(stream);
-                }
-                else
-                {
-                    m_StartTimeUS.ReadAsInt(stream);
-                }
+                m_StartTimeUS.Read(stream, version);
 
                 this.m_TotalCPUTimeInMicroSec = ProfilerLogUtil.ReadInt(stream);
                 this.m_TotalGPUTimeInMicroSec = ProfilerLogUtil.ReadInt(stream);
@@ -117,6 +111,12 @@ namespace UTJ.ProfilerReader
                 {
                     ThreadData threadData = new ThreadData();
                     threadData.Read_Generic(stream,version);
+                    // collect counter value
+                    if (version >= ProfilerDataStreamVersion.Unity2020_2)
+                    {
+                        CollectCounterValueSamples(threadData.m_AllSamples);
+                    }
+
                     m_ThreadData.Add(threadData);
                 }
 
@@ -129,7 +129,7 @@ namespace UTJ.ProfilerReader
                     for (int i = 0; i < jitInfoCout; ++i)
                     {
                         var jitInfo = new JitInfo();
-                        jitInfo.Read(stream);
+                        jitInfo.Read(stream,version);
                         m_jitInfos.Add(jitInfo);
                     }
                 }
@@ -142,6 +142,21 @@ namespace UTJ.ProfilerReader
                 return true;
             }
 
+
+            private void CollectCounterValueSamples(List<ProfilerSample> sampleList)
+            {
+                foreach (var sample in sampleList)
+                {
+                    if (sample == null || sample.profilerInfo == null)
+                    {
+                        continue;
+                    }
+                    if (sample.profilerInfo.IsCounter)
+                    {
+                        this.AddCounterSample(sample);
+                    }
+                }
+            }
         }
     }
 }

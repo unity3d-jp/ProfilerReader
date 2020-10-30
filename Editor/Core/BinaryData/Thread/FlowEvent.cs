@@ -13,7 +13,8 @@ namespace UTJ.ProfilerReader.BinaryData.Thread
         {
             relatedSampleIndex = ProfilerLogUtil.ReadUint(stream);
             flowId = ProfilerLogUtil.ReadUint(stream);
-            flowEventType = ProfilerLogUtil.ReadUInt8Value(stream);
+            uint val = ProfilerLogUtil.ReadUint(stream);
+            flowEventType = (byte)val;
         }
     };
 }

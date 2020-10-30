@@ -3,6 +3,7 @@ using UTJ.ProfilerReader.BinaryData;
 using UTJ.ProfilerReader.RawData.Protocol;
 using System.Text;
 using System.IO;
+using System.Text.RegularExpressions;
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -135,10 +136,9 @@ namespace UTJ.ProfilerReader.Analyzer
             string file = GetFilePath(captureData);
             byte[] pngBin = null;
 #if UNITY_EDITOR
-            Texture2D texture = new Texture2D(captureData.width, captureData.height, 
-                TextureFormat.RGBA32, false);
-            texture.LoadRawTextureData(binData);
-            pngBin = ImageConversion.EncodeToPNG(texture);
+            pngBin = ImageConversion.EncodeArrayToPNG(binData,
+                UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB,
+                (uint)captureData.width, (uint)captureData.height);
 
             // debug!
 //            File.WriteAllBytes(file.Replace("png", "bin"), binData);

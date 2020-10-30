@@ -9,8 +9,6 @@ using UTJ.ProfilerReader.BinaryData.Thread;
 
 namespace UTJ.ProfilerReader.RawData.Converter
 {
-
-
     // output state
     class OutputFrameInfo
     {
@@ -114,6 +112,12 @@ namespace UTJ.ProfilerReader.RawData.Converter
                 this.currentThreadOutput.m_AllSamples = new List<ProfilerSample>(1024 * 4);
             }
             this.currentThreadOutput.m_AllSamples.Add(sample);
+
+            // append counter info
+            if (sample.profilerInfo.IsCounter)
+            {
+                this.outputFrame.AddCounterSample(sample);
+            }
         }
 
         public void SetCallStackInfo(ProfileCallstack callstack)

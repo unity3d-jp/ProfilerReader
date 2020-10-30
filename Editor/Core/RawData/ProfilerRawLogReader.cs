@@ -72,7 +72,14 @@ namespace UTJ.ProfilerReader.RawData
                 result = converter.GetFrameData(currentFrame);
                 converter.ReleaseFrameData(currentFrame);
                 ++currentFrame;
-                if( result == null) { this.isComplete = true; }
+                if( result == null) { 
+                    this.isComplete = true;
+                }
+                if (result != null)
+                {
+                    result.ApplyCountersToDeplicatedStats();
+                }
+
                 return result;
             }
             
@@ -102,6 +109,10 @@ namespace UTJ.ProfilerReader.RawData
             converter.ReleaseFrameData(currentFrame);
             ++currentFrame;
 
+            if (result != null)
+            {
+                result.ApplyCountersToDeplicatedStats();
+            }
             return result;
         }
 

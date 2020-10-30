@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Boo.Lang;
+using System.Collections.Generic;
 using UTJ.ProfilerReader.Protocol;
 
 namespace UTJ.ProfilerReader
@@ -29,6 +30,11 @@ namespace UTJ.ProfilerReader
                 return null;
             }
             return obj.GetCategories();
+        }
+
+        public static HashSet<string> GetEngineCounter(string unityVersion)
+        {
+            return new HashSet<string>();
         }
     }
 }
