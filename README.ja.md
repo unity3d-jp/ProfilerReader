@@ -7,7 +7,8 @@ Read this in other languages: [English](README.md), 日本語<br />
 For example, generate csv files that shows Samples allocating many Managed Heap from "Unity Profiler" binary log.
 
 ## 対応バージョン
-5.6 / 2017.1 / 2017.2 / 2017.3 / 2017.4 / 2018.1 / 2018.2 / 2018.3 / 2018.4 /2019.1/2019.2/2019.3/2019.4
+5.6 / 2017.1 / 2017.2 / 2017.3 / 2017.4 / 2018.1 / 2018.2 / 2018.3 / 2018.4 /2019.1/2019.2/2019.3/2019.4 <br />
+作業中:2020.1/2020.2
 
 ## Filter検索機能
 「Tools->UTJ->ProfilerReader->AnalyzeToCsv」で下記ウィンドウが出ます。<br />

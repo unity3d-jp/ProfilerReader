@@ -1,6 +1,8 @@
 {
-    "name": "com.utj.profilerreader.editor",
-    "references": [],
+    "name": "UTJ.ProfilerReader.Editor",
+    "references": [
+        "UTJ.ProfilerReader.Core"
+    ],
     "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
