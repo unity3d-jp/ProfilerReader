@@ -1,5 +1,4 @@
-﻿using Boo.Lang;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UTJ.ProfilerReader.Protocol;
 
 namespace UTJ.ProfilerReader

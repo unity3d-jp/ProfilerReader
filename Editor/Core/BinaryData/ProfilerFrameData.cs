@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UTJ.ProfilerReader.BinaryData.Stats;
 
 namespace UTJ.ProfilerReader
