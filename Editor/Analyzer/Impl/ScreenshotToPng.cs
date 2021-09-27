@@ -3,7 +3,6 @@ using UTJ.ProfilerReader.BinaryData;
 using UTJ.ProfilerReader.RawData.Protocol;
 using System.Text;
 using System.IO;
-using System.Text.RegularExpressions;
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -22,6 +21,14 @@ namespace UTJ.ProfilerReader.Analyzer
         private bool createDir = false;
         private StringBuilder stringBuilder = new StringBuilder();
 
+        public enum TextureCompress : byte
+        {
+            None = 0,
+            RGB_565 = 1,
+            PNG = 2,
+            JPG_BufferRGB565 = 3,
+            JPG_BufferRGBA = 4,
+        }
         private class CaptureData
         {
             public int profilerFrameIndex;
@@ -30,6 +37,7 @@ namespace UTJ.ProfilerReader.Analyzer
             public int height;
             public int originWidth;
             public int originHeight;
+            public TextureCompress compress;
 
             public CaptureData(int frameIdx ,byte[] data)
             {
@@ -39,6 +47,16 @@ namespace UTJ.ProfilerReader.Analyzer
                 this.height = GetShortValue(data, 6);
                 this.originWidth = GetShortValue(data, 8);
                 this.originHeight = GetShortValue(data, 10);
+
+                if (data.Length > 12)
+                {
+                    this.compress = (ScreenShotToProfiler.TextureCompress)data[12];
+                }
+                else
+                {
+                    this.compress = ScreenShotToProfiler.TextureCompress.None;
+                }
+
             }
 
             public static int GetIntValue(byte[] bin, int offset)
@@ -134,27 +152,51 @@ namespace UTJ.ProfilerReader.Analyzer
             this.InitDirectory();
 
             string file = GetFilePath(captureData);
-            byte[] pngBin = null;
-#if UNITY_EDITOR
-            pngBin = ImageConversion.EncodeArrayToPNG(binData,
-                UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB,
-                (uint)captureData.width, (uint)captureData.height);
-
-            // debug!
-//            File.WriteAllBytes(file.Replace("png", "bin"), binData);
-#endif
+            byte[] pngBin = GetImageBin(captureData,binData);
             if ( pngBin != null)
             {
                 File.WriteAllBytes(file, pngBin);
             }
         }
-
+        private byte[] GetImageBin(CaptureData captureData,byte[] binData)
+        {
+            if(binData == null) { return null; }
+            switch (captureData.compress)
+            {
+#if UNITY_EDITOR
+                case TextureCompress.None:
+                    return ImageConversion.EncodeArrayToPNG(binData,
+                        UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB,
+                        (uint)captureData.width, (uint)captureData.height);
+                case TextureCompress.RGB_565:
+                    return ImageConversion.EncodeArrayToPNG(binData,
+                        UnityEngine.Experimental.Rendering.GraphicsFormat.R5G6B5_UNormPack16,
+                        (uint)captureData.width, (uint)captureData.height);
+#endif
+                case TextureCompress.PNG:
+                case TextureCompress.JPG_BufferRGB565:
+                case TextureCompress.JPG_BufferRGBA:
+                    return binData;
+            }
+            return null;
+        }
         private string GetFilePath(CaptureData captureData)
         {
             stringBuilder.Length = 0;
             stringBuilder.Append(this.outputPath).Append("/ss-");
             stringBuilder.Append(string.Format("{0:D5}", captureData.idx));
-            stringBuilder.Append(".png");
+            switch (captureData.compress)
+            {
+                case TextureCompress.None:
+                case TextureCompress.RGB_565:
+                case TextureCompress.PNG:
+                    stringBuilder.Append(".png");
+                    break;
+                case TextureCompress.JPG_BufferRGB565:
+                case TextureCompress.JPG_BufferRGBA:
+                    stringBuilder.Append(".jpg");
+                    break;
+            }
             return stringBuilder.ToString();
         }
 

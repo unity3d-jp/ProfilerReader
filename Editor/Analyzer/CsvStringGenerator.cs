@@ -27,6 +27,27 @@ namespace UTJ.ProfilerReader.Analyzer
             stringBuilder.Append(val).Append(',');
             return this;
         }
+        public CsvStringGenerator AppendColumn(string val,int idx,int length)
+        {
+            if (val == null)
+            {
+                stringBuilder.Append(",");
+                return this;
+            }
+            if (val.Contains(",") )
+            {
+                val = val.Replace(',', '.');
+            }
+            if (val.Contains("\n"))
+            {
+                val = val.Replace('\n', ' ');
+            }
+            else
+            {
+                stringBuilder.Append(val, idx, length).Append(',');
+            }
+            return this;
+        }
         public CsvStringGenerator AppendColumn(int val)
         {
             stringBuilder.Append(val).Append(',');
