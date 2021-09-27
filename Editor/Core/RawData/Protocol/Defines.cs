@@ -49,6 +49,10 @@ namespace UTJ.ProfilerReader.RawData.Protocol
             kLocalGPUSample = kGlobalMessagesCount + 23,
             kCleanupThread = kGlobalMessagesCount + 24,
             kFlowEvent = kGlobalMessagesCount + 25,// from 20180306
+
+            // Category name, id, and etc        
+            kCategoryInfo = kGlobalMessagesCount + 30, //from 2021.2
+            kCategoryState = kGlobalMessagesCount + 31,
         };
 
         public enum MetadataDescriptionType : byte

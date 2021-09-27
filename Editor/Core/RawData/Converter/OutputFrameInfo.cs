@@ -200,6 +200,23 @@ namespace UTJ.ProfilerReader.RawData.Converter
             return true;
         }
 
+        public void SetCategoryInfo(Dictionary<ushort,CategoryInfo> categories)
+        {
+            this.outputFrame.m_categories = new List<BinaryData.Stats.Category>();
+            foreach( var category in categories.Values)
+            {
+                var binData = new BinaryData.Stats.Category()
+                {
+                    categoryId = category.categoryID,
+                    colorIndex = category.color,
+                    flags = category.flags,
+                    name = category.name
+                };
+
+                this.outputFrame.m_categories.Add(binData);
+            }
+        }
+
         private void BackupSampleParentByThreadId(ulong oldThreadId)
         {
             if (isFirst)

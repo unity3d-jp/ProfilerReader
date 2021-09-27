@@ -1,34 +1,61 @@
 ﻿using System.Collections.Generic;
 using UTJ.ProfilerReader.Protocol;
+using UTJ.ProfilerReader.BinaryData;
+using UTJ.ProfilerReader.BinaryData.Stats;
 
 namespace UTJ.ProfilerReader
 {
     // s_ProfilerCategoryInfos
     public class ProtocolData
     {
-        static Dictionary<string, string[]> cacheData;
-        public static string GetCategory( string unityVersion,int categoryId)
+        private static string cacheVersion;
+        private static Dictionary<uint, Category> cacheDictionary;
+
+        public static Dictionary<uint,Category> GetCategories(ProfilerFrameData frame, string version)
         {
-            string[] categories = null;
-            if( cacheData == null) { cacheData = new Dictionary<string, string[]>(); }
-            if(!cacheData.TryGetValue(unityVersion,out categories)){
-                categories = GetCategories(unityVersion);
-                cacheData.Add(unityVersion, categories);
-            }
-            if( categories == null || categoryId < 0 || categoryId >= categories.Length)
+            if(cacheVersion == version)
             {
-                return "";
+                return cacheDictionary;
             }
-            return categories[categoryId];
-        }
-        public static string[] GetCategories(string version)
-        {
+            var category = frame.CategoryInfo;
+            if(category != null) { return category; }
+
             var obj = CategoryVersionAttribute.GetMatchObject(version);
             if( obj == null)
             {
+                cacheDictionary = null;
+                cacheVersion = version;
                 return null;
             }
-            return obj.GetCategories();
+            cacheDictionary = CreateCategoryDictionary(obj.GetCategories());
+            cacheVersion = version;
+
+            return cacheDictionary;
+//            return obj.GetCategories();
+        }
+        public static string GetCategory(ProfilerFrameData frame, string version, int idx)
+        {
+            var dict = GetCategories(frame, version);
+            Category category = null;
+            if (dict.TryGetValue((uint)idx, out category))
+            {
+                return category.name;
+            }
+            return "";
+        }
+
+        private static Dictionary<uint, Category> CreateCategoryDictionary(string[] builtInCategory)
+        {
+            var dict = new Dictionary<uint, Category>();
+            for (int i = 0; i < builtInCategory.Length; ++i)
+            {
+                Category category = new Category()
+                {
+                    categoryId = (uint)i,
+                    name = builtInCategory[i]
+                };
+            }
+            return dict;
         }
 
         public static HashSet<string> GetEngineCounter(string unityVersion)

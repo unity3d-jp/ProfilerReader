@@ -57,36 +57,36 @@ namespace UTJ.ProfilerReader.Analyzer
             {
                 if (thread.IsMainThread)
                 {
-                    CollectThread(thread);
+                    CollectThread(frameData,thread);
                 }
             }
             ++frameNum;
         }
 
-        private void CollectThread(ThreadData thread)
+        private void CollectThread(ProfilerFrameData frameData,ThreadData thread)
         {
             if (thread == null || thread.m_AllSamples == null) { return; }
             foreach (var sample in thread.m_AllSamples)
             {
                 if (sample.parent == null)
                 {
-                    CollectFromNamedChildren(sample);
+                    CollectFromNamedChildren(frameData,sample);
                 }
             }
         }
 
-        private void CollectFromNamedChildren(ProfilerSample sample)
+        private void CollectFromNamedChildren(ProfilerFrameData frameData,ProfilerSample sample)
         {
             if (!string.IsNullOrEmpty(sample.sampleName))
             {
-                string category = UTJ.ProfilerReader.ProtocolData.GetCategory(unityVersion, sample.group);
+                string category = ProtocolData.GetCategory(frameData,unityVersion, sample.group);
                 AddSampleData(sample.fullSampleName, sample.sampleName, category, sample.selfTimeUs / 1000.0f, sample.timeUS / 1000.0f);
             }
             if (sample.children != null)
             {
                 foreach (var child in sample.children)
                 {
-                    CollectFromNamedChildren(child);
+                    CollectFromNamedChildren(frameData,child);
                 }
             }
             return;

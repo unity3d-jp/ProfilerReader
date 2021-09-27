@@ -2,13 +2,10 @@
 namespace UTJ.ProfilerReader.Protocol
 {
     // s_ProfilerCategoryInfos
-    [CategoryVersion("2017.3","2017.4")]
+    [CategoryVersion("2017.3", "2017.4")]
     internal class Category201703 : ICategory
     {
-        // 2018_3
-        public string[] GetCategories()
-        {
-            string[] category = new string[] {
+        static string[] category = new string[] {
                 "Render"    ,
                 "Scripts"   ,
                 "GUI"       ,
@@ -33,8 +30,17 @@ namespace UTJ.ProfilerReader.Protocol
                 "FileIO"    ,
                 "UI Layout" ,
                 "UI Render"
-            };
+        };
+
+        // 2018_3
+        public string[] GetCategories()
+        {
             return category;
+        }
+        public string GetCategory(int idx)
+        {
+            if (idx < 0 || idx >= category.Length) { return null; }
+            return category[idx];
         }
     }
 }

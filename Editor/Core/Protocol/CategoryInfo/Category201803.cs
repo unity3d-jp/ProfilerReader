@@ -5,10 +5,7 @@ namespace UTJ.ProfilerReader.Protocol
     [CategoryVersion("2018.3", "2018.4")]
     internal class Category201803 : ICategory
     {
-        // 2018_3
-        public string[] GetCategories()
-        {
-            string[] category = new string[] {
+        static string[] category = new string[] {
                 "Render"         ,
                 "Scripts"        ,
                 "Managed Jobs"   ,
@@ -39,7 +36,16 @@ namespace UTJ.ProfilerReader.Protocol
                 "Build Interface",
                 "Input",
             };
+
+        // 2018_3
+        public string[] GetCategories()
+        {
             return category;
+        }
+        public string GetCategory(int idx)
+        {
+            if (idx < 0 || idx >= category.Length) { return null; }
+            return category[idx];
         }
     }
 }

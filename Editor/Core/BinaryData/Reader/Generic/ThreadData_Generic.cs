@@ -13,6 +13,10 @@ namespace UTJ.ProfilerReader
         {
             internal void Read_Generic(System.IO.Stream stream,uint version)
             {
+                if(version >= ProfilerDataStreamVersion.Unity2020_2)
+                {
+                    ulong val = ProfilerLogUtil.ReadUint(stream) | ((ulong)(ProfilerLogUtil.ReadUint(stream)) << 32);
+                }
                 m_GroupName = ProfilerLogUtil.ReadString(stream);
                 m_ThreadName = ProfilerLogUtil.ReadString(stream);
                 // all samples

@@ -51,6 +51,10 @@ namespace UTJ.ProfilerReader
             public List<JitInfo> m_jitInfos;
             private List<JitInfo> m_sortedJitByAddr;
 
+            // from 2021.2
+            internal List<Category> m_categories;
+            private Dictionary<uint, Category> m_categoryDictionary;
+
             // from 2020.2( counterValues)
             private List<ProfilerSample> m_CounterValues;
             // Even if there are same name samples...So "List<ProfilerSample>" 
@@ -347,7 +351,21 @@ namespace UTJ.ProfilerReader
 
             #endregion COUNTER_VALUE
 
-
+            public Dictionary<uint,Category> CategoryInfo
+            {
+                get
+                {
+                    if(m_categoryDictionary == null)
+                    {
+                        m_categoryDictionary = new Dictionary<uint, Category>();
+                        foreach( var category in m_categories)
+                        {
+                            this.m_categoryDictionary[category.categoryId] = category;
+                        }
+                    }
+                    return m_categoryDictionary; 
+                }
+            }
         }
 
 

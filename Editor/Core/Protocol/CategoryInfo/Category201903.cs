@@ -6,43 +6,50 @@ namespace UTJ.ProfilerReader.Protocol
     [CategoryVersion("2019.3", "2019.4")]
     internal class Category201903 : ICategory
     {
+        static string[] category = new string[] {
+                "Render"           ,
+                "Scripts"          ,
+                "Managed Jobs"     ,
+                "Burst Jobs"       ,
+                "GUI"              ,
+                "Physics"          ,
+                "Animation"        ,
+                "AI"               ,
+                "Audio"            ,
+                "Audio Job"        ,
+                "Audio Update Job" ,
+                "Video"            ,
+                "Particles"        ,
+                "Gi"               ,
+                "Network"          ,
+                "Loading"          ,
+                "Other"            ,
+                "GC"               ,
+                "VSync"            ,
+                "Overhead"         ,
+                "PlayerLoop"       ,
+                "Director"         ,
+                "VR"               ,
+                "NativeMem"        ,
+                "Internal"         ,
+                "FileIO"           ,
+                "UI Layout"        ,
+                "UI Render"        ,
+                "VFX"              ,
+                "Build Interface"  ,
+                "Input"            ,
+            };
+
         // 2019.3
         public string[] GetCategories()
         {
-            string[] category = new string[] {
-                "Render"           , 
-                "Scripts"          , 
-                "Managed Jobs"     , 
-                "Burst Jobs"       , 
-                "GUI"              , 
-                "Physics"          , 
-                "Animation"        , 
-                "AI"               , 
-                "Audio"            , 
-                "Audio Job"        , 
-                "Audio Update Job" , 
-                "Video"            , 
-                "Particles"        , 
-                "Gi"               , 
-                "Network"          , 
-                "Loading"          , 
-                "Other"            , 
-                "GC"               , 
-                "VSync"            , 
-                "Overhead"         , 
-                "PlayerLoop"       , 
-                "Director"         , 
-                "VR"               , 
-                "NativeMem"        , 
-                "Internal"         , 
-                "FileIO"           , 
-                "UI Layout"        , 
-                "UI Render"        , 
-                "VFX"              , 
-                "Build Interface"  , 
-                "Input"            ,
-            };
             return category;
+        }
+
+        public string GetCategory(int idx)
+        {
+            if(idx < 0 || idx >= category.Length) { return null; }
+            return category[idx];
         }
     }
 }

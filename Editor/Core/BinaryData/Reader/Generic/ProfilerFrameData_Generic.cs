@@ -133,6 +133,19 @@ namespace UTJ.ProfilerReader
                         m_jitInfos.Add(jitInfo);
                     }
                 }
+                // Category
+                if(version >= ProfilerDataStreamVersion.Unity2021_2)
+                {
+                    int categoryNum = ProfilerLogUtil.ReadInt(stream);
+                    m_categories = new List<Category>(categoryNum);
+                    for (int i = 0; i < categoryNum; ++i)
+                    {
+                        var category = new Category();
+                        category.Read(stream, version);
+                        m_categories.Add(category);
+                    }
+                }
+
                 uint end = ProfilerLogUtil.ReadUint(stream);
                 if ((end != EndCode))
                 {

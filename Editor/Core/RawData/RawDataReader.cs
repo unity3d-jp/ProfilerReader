@@ -313,6 +313,21 @@ namespace UTJ.ProfilerReader.RawData
                         rawDataBehaviour.OnDataRead(ref methodJitInfo);
                     }
                     break;
+                case RawDataDefines.MessageType.kCategoryInfo:
+                    {
+                        CategoryInfo categoryInfo = new CategoryInfo();
+                        categoryInfo.Read(reader);
+                        rawDataBehaviour.OnDataRead(ref categoryInfo);
+                    }
+                    break;
+                case RawDataDefines.MessageType.kCategoryState:
+                    {
+                        CategoryState categoryState = new CategoryState();
+                        categoryState.Read(reader);
+                        rawDataBehaviour.OnDataRead(ref categoryState);
+                    }
+                    break;
+
                 default:
                     ProfilerLogUtil.LogError("UnknownMessage:" + messageType);
                     return false;

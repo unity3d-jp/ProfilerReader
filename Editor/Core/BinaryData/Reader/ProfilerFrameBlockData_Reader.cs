@@ -9,8 +9,12 @@ namespace UTJ.ProfilerReader
     {
         public static class ProfilerDataStreamVersion
         {
+            public const int RawUnity2021_2 = 0x20210412;
+            public const int Unity2021_2 = 0x20210412;
+            // No change at 2021.1 from 2020.3LTS
 
-            public const int Unity2020_2 = 0x20200828;
+            public const int RAW_Unity2020_2 = 0x20191122;//Not Change from 2019.4LTS
+            public const int Unity2020_2 = 0x20200924;
             public const int Unity2020_1 = 0x20200312;
 
             public const int Unity2019_3 = 0x20191122;//0x20190514;
@@ -126,6 +130,7 @@ namespace UTJ.ProfilerReader
                     case ProfilerDataStreamVersion.Unity2019_3:
                     case ProfilerDataStreamVersion.Unity2020_1:
                     case ProfilerDataStreamVersion.Unity2020_2:
+                    case ProfilerDataStreamVersion.Unity2021_2:
                         flag = this.frameData.ReadGeneric(stream, frameDataSize, threadCount, frameIndex, 
                             (uint)ProfilerDataStreamVersion.ConvertVersionForExecute(this.dataVersion,unityVersion) );
                         break;

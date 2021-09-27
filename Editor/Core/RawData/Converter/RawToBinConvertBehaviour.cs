@@ -50,7 +50,10 @@ namespace UTJ.ProfilerReader.RawData.Converter
         private Dictionary<uint, OutputFrameInfo> outputFrameDatas;
         private OutputFrameInfo currentOutputFrame;
         private string unityVersion;
-        
+
+        // CategoryInfo
+        private Dictionary<ushort, CategoryInfo> categoryDictionary; 
+
 
         public RawToBinConvertBehaviour()
         {
@@ -153,9 +156,8 @@ namespace UTJ.ProfilerReader.RawData.Converter
                 outputFrameDatas.Add(this.currentFrameIdx, frameInfo);
             }
             currentOutputFrame = frameInfo;
+            currentOutputFrame.SetCategoryInfo(this.categoryDictionary);
             sampleStackResolver.SetFrame(this.currentFrameIdx);
-
-            // 
             sampleStackResolver.SetThread(this.currentThreadId);
         }
         public void OnDataRead(ref ThreadInfo threadInfo)
@@ -409,6 +411,28 @@ namespace UTJ.ProfilerReader.RawData.Converter
             }
 
             return metadata;
+        }
+
+        public void OnDataRead(ref CategoryInfo categoryInfo)
+        {
+#if UTJ_CHECK
+            Debug.DebugLogWrite.Log("[OnGlobalDataRead] CategoryInfo:" + categoryInfo.categoryID +":"+categoryInfo.name + " " + categoryInfo.flags);
+#endif
+            if (this.categoryDictionary == null)
+            {
+                this.categoryDictionary = new Dictionary<ushort, CategoryInfo>();
+            }
+            this.categoryDictionary[categoryInfo.categoryID] = categoryInfo;
+        }
+
+        public void OnDataRead(ref CategoryState categoryState)
+        {
+#if UTJ_CHECK
+            Debug.DebugLogWrite.Log("[OnGlobalDataRead] CategoryState:" + categoryState.categoryID + ":" + categoryState.flags);
+#endif
+            var info = this.categoryDictionary[categoryState.categoryID];
+            info.flags = categoryState.flags;
+            this.categoryDictionary[categoryState.categoryID] = info;
         }
     }
 }

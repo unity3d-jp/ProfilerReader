@@ -37,6 +37,9 @@ namespace UTJ.ProfilerReader.RawData
         void OnDataRead(ref AllProfilerStats allProfilerStats);
         void OnDataRead(ref FlowEvent flowEvent);
 
+        void OnDataRead(ref CategoryInfo categoryInfo);
+        void OnDataRead(ref CategoryState categoryState);
+
         void OnDataRead(ref MethodJitInfo methodJitInfo);
     }
 }

@@ -43,8 +43,7 @@ namespace UTJ.ProfilerReader.Analyzer
             }
         }
 
-        private string[] categories;
-        private Dictionary<string, int> categoryDictionary;
+        private Dictionary<int,string> categoryDictionary;
         private List<string> categoriesStr;
         private List<FrameByCategory> frames = new List<FrameByCategory>();
 
@@ -53,14 +52,16 @@ namespace UTJ.ProfilerReader.Analyzer
             if (thread.m_AllSamples == null) { return; }
             foreach (var sample in thread.m_AllSamples)
             {
-                if( 0 <= sample.group && sample.group < categories.Length )
-                frameByCategory.AddData(categories[sample.group], sample.selfTimeUs * 0.001f);
+                string category = null;
+                if(categoryDictionary.TryGetValue(sample.group,out category) ){
+                    frameByCategory.AddData(categoriesStr[sample.group], sample.selfTimeUs * 0.001f);
+                }
             }
         }
         public override void CollectData(ProfilerFrameData frameData)
         {
             // Categoryのセットアップ
-            SetupCategories();
+            SetupCategories(frameData);
             FrameByCategory frameByCategory = new FrameByCategory();
             frameByCategory.frameIdx = frameData.frameIndex;
             // 特別枠で frameDataのＣＰＵ時間を追加
@@ -75,23 +76,23 @@ namespace UTJ.ProfilerReader.Analyzer
             }
             this.frames.Add(frameByCategory);
         }
-        private void SetupCategories()
+        private void SetupCategories(ProfilerFrameData frameData)
         {
             if(this.categoryDictionary != null)
             {
                 return;
             }
             this.categoriesStr = new List<string>();
-            this.categoryDictionary = new Dictionary<string, int>();
-            categories = UTJ.ProfilerReader.ProtocolData.GetCategories(this.unityVersion);
-            int idx = 0;
+            this.categoryDictionary = new Dictionary<int,string>();
+            var categories = ProtocolData.GetCategories(frameData, this.unityVersion);
             foreach( var item in categories)
             {
-                if (!categoryDictionary.ContainsKey(item))
+                string name = item.Value.name;
+                int idx = (int)item.Value.categoryId;
+                if (!categoryDictionary.ContainsKey(idx))
                 {
-                    categoriesStr.Add(item);
-                    categoryDictionary.Add(item, idx);
-                    ++idx;
+                    categoriesStr.Add(name);
+                    categoryDictionary.Add(idx,name);
                 }
             }
         }
