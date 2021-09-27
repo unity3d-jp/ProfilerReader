@@ -54,6 +54,7 @@ namespace UTJ.ProfilerReader
                     categoryId = (uint)i,
                     name = builtInCategory[i]
                 };
+                dict.Add(category.categoryId, category);
             }
             return dict;
         }
