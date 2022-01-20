@@ -3,7 +3,7 @@
 namespace UTJ.ProfilerReader.Protocol
 {
     // s_ProfilerCategoryInfos
-    [CategoryVersion("2020.1","2020.2","2020.3")]
+    [CategoryVersion("2020.1","2020.2","2020.3","2021.1")]
     internal class Category2020 : ICategory
     {
         internal static string[] category = new string[] {

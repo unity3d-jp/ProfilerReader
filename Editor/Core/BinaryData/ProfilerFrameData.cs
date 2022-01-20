@@ -355,16 +355,15 @@ namespace UTJ.ProfilerReader
             {
                 get
                 {
-                    if (m_categories == null)
-                    {
-                        return null;
-                    }
-                    if (m_categoryDictionary == null)
+                    if(m_categoryDictionary == null)
                     {
                         m_categoryDictionary = new Dictionary<uint, Category>();
-                        foreach( var category in m_categories)
+                        if (m_categories != null)
                         {
-                            this.m_categoryDictionary[category.categoryId] = category;
+                            foreach (var category in m_categories)
+                            {
+                                this.m_categoryDictionary[category.categoryId] = category;
+                            }
                         }
                     }
                     return m_categoryDictionary; 

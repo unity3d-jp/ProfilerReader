@@ -81,6 +81,7 @@ namespace UTJ.ProfilerReader
                     {
                         tm -= child.timeUS;
                     }
+                    if (tm < 0) { tm = 0; }
                     return tm;
                 }
             }

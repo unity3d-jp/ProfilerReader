@@ -202,7 +202,6 @@ namespace UTJ.ProfilerReader.RawData.Converter
 
         public void SetCategoryInfo(Dictionary<ushort,CategoryInfo> categories)
         {
-            if(categories == null || categories.Count == 0) { return; }
             this.outputFrame.m_categories = new List<BinaryData.Stats.Category>();
             foreach( var category in categories.Values)
             {

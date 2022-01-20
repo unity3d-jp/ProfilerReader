@@ -13,13 +13,15 @@ namespace UTJ.ProfilerReader
 
         public static Dictionary<uint,Category> GetCategories(ProfilerFrameData frame, string version)
         {
-            if(cacheVersion == version)
+            var category = frame.CategoryInfo;
+            if(category != null && category.Count>0 ) {
+                return category;
+            }
+
+            if (cacheVersion == version)
             {
                 return cacheDictionary;
             }
-            var category = frame.CategoryInfo;
-            if(category != null) { return category; }
-
             var obj = CategoryVersionAttribute.GetMatchObject(version);
             if( obj == null)
             {
@@ -54,7 +56,7 @@ namespace UTJ.ProfilerReader
                     categoryId = (uint)i,
                     name = builtInCategory[i]
                 };
-                dict.Add(category.categoryId, category);
+                dict.Add((uint)i,category);
             }
             return dict;
         }
