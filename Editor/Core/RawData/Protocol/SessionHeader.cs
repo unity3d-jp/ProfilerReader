@@ -20,6 +20,8 @@ namespace UTJ.ProfilerReader.RawData.Protocol
         public ulong timeDenominator;
         public ulong mainThreadId;
 
+        public int[] unityVersion;
+
         public void ReadData(byte[] buffer)
         {
             this.signature = UTJ.ProfilerReader.ProfilerLogUtil.GetUIntValue(buffer, 0);
@@ -30,7 +32,15 @@ namespace UTJ.ProfilerReader.RawData.Protocol
             this.timeNumerator = UTJ.ProfilerReader.ProfilerLogUtil.GetULongValue(buffer, 12);
             this.timeDenominator = UTJ.ProfilerReader.ProfilerLogUtil.GetULongValue(buffer, 20);
             this.mainThreadId = UTJ.ProfilerReader.ProfilerLogUtil.GetULongValue(buffer, 28);
-            
+        }
+        public void AddUnityVersionData(byte[] buffer)
+        {
+            const int versionTypeNum = 5;
+            this.unityVersion = new int[versionTypeNum];
+            for(int i = 0; i < versionTypeNum; ++i)
+            {
+                this.version = UTJ.ProfilerReader.ProfilerLogUtil.GetUIntValue(buffer, i*4);
+            }
         }
         public bool CheckSignature()
         {

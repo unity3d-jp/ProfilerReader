@@ -41,5 +41,10 @@ namespace UTJ.ProfilerReader.RawData
         void OnDataRead(ref CategoryState categoryState);
 
         void OnDataRead(ref MethodJitInfo methodJitInfo);
+
+        //
+        void OnDataRead(ref UnityNativeTypeInfo typeInfo);
+        void OnDataRead(ref GfxResourceInfo typeInfo);
+        void OnDataRead(ref UnityObjectInfo typeInfo);
     }
 }

@@ -98,6 +98,7 @@ namespace UTJ.ProfilerReader
                 }
                 #endregion
 
+
                 // thread Data
                 this.m_ThreadCount = ProfilerLogUtil.ReadInt(stream);
                 m_ThreadData = new List<ThreadData>(m_ThreadCount);

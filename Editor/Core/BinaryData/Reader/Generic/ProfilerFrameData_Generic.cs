@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -23,7 +24,8 @@ namespace UTJ.ProfilerReader
                     ProfilerLogUtil.LogError("frame data maybe broken. " + frameSize + "/" + stream.Length );
                     return false;
                 }
-               
+
+
 
                 //
                 this.frameIndexFromFile = ProfilerLogUtil.ReadInt(stream);
@@ -104,6 +106,30 @@ namespace UTJ.ProfilerReader
                 }
                 #endregion
 
+
+                // from Unity 2022
+                if (version >= ProfilerDataStreamVersion.Unity2022_2)
+                {
+                    this.makerSymbolDictionary = new MakerSymbolDictionary();
+                    this.makerSymbolDictionary.Clear();
+                    int markerCount = ProfilerLogUtil.ReadInt(stream);
+                    for (int i = 0; i < markerCount; ++i)
+                    {
+                        uint id = ProfilerLogUtil.ReadUint(stream);
+                        string name = ProfilerLogUtil.ReadString(stream);
+                        uint groupFlag = ProfilerLogUtil.ReadUint(stream);
+                        int paramCount = ProfilerLogUtil.ReadInt(stream);
+                        var makerInfo = new MakerSymbolDictionary.MakerInfo(id, name, groupFlag, paramCount);
+                        for (int j = 0; j < paramCount; ++j)
+                        {
+                            MetadataDescription metadataDescription = new MetadataDescription();
+                            metadataDescription.Read(stream);
+                            makerInfo.AddDesctiption(metadataDescription);
+                        }
+                        this.makerSymbolDictionary.AddMakerInfo(makerInfo);
+                    }
+                }
+
                 // thread Data
                 this.m_ThreadCount = ProfilerLogUtil.ReadInt(stream);
                 m_ThreadData = new List<ThreadData>(m_ThreadCount);
@@ -144,6 +170,62 @@ namespace UTJ.ProfilerReader
                         category.Read(stream, version);
                         m_categories.Add(category);
                     }
+                }
+
+
+                // ObjectNames
+                if(version >= ProfilerDataStreamVersion.Unity2022_1)
+                {
+                    // Native Types
+                    int nativeTypesCount = ProfilerLogUtil.ReadInt(stream);
+                    for(int i = 0;i < nativeTypesCount; ++i)
+                    {
+
+                        uint baseTypeId = ProfilerLogUtil.ReadUint(stream);
+                        string name = ProfilerLogUtil.ReadString(stream);
+                    }
+                    // Unity Objects
+                    int unityObjectCount = ProfilerLogUtil.ReadInt(stream);
+                    for(int i = 0;i< unityObjectCount; ++i)
+                    {
+
+                        int instanceId = ProfilerLogUtil.ReadInt(stream);
+                        int relatedGameObjectInstanceId = 0;
+                        if (version >= ProfilerDataStreamVersion.Unity2022_2)
+                        {
+                            relatedGameObjectInstanceId = ProfilerLogUtil.ReadInt(stream);
+                        }
+                        uint typeId = ProfilerLogUtil.ReadUint(stream);
+                        string name = ProfilerLogUtil.ReadString(stream);
+
+                        // Extra rootid for objects
+                        ulong rootId = 0;
+                        if (version >= ProfilerDataStreamVersion.Unity2022_2)
+                        {
+                            rootId = ProfilerLogUtil.ReadULong(stream);
+                        }
+                    }
+
+                }
+
+                // GfxResourceInfo
+                if(version >= ProfilerDataStreamVersion.Unity2022_2)
+                {
+
+                    // Read GfxResource to root mapping
+                    int gfxResourceCount = ProfilerLogUtil.ReadInt(stream);
+                    for (int i = 0; i < gfxResourceCount; ++i)
+                    {
+                        ulong gfxResourceId = ProfilerLogUtil.ReadULong(stream);
+                        ulong rootId = ProfilerLogUtil.ReadULong(stream);
+
+                    }
+                }
+                // resolve makers
+
+                if (version >= ProfilerDataStreamVersion.Unity2022_2)
+                {
+                    makerSymbolDictionary.ResolveThread(this.m_ThreadData);
                 }
 
                 uint end = ProfilerLogUtil.ReadUint(stream);

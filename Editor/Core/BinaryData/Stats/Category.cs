@@ -10,6 +10,7 @@ namespace UTJ.ProfilerReader.BinaryData.Stats
         public uint colorIndex;
         public uint flags;
         public string name;
+        public uint categoryEnabled;
 
         public void Read(System.IO.Stream stream, uint version)
         {
@@ -17,6 +18,10 @@ namespace UTJ.ProfilerReader.BinaryData.Stats
             this.colorIndex = ProfilerLogUtil.ReadUint(stream);
             this.flags = ProfilerLogUtil.ReadUint(stream);
             this.name = ProfilerLogUtil.ReadString(stream);
+            if(version >= ProfilerDataStreamVersion.Unity2022_2)
+            {
+                categoryEnabled = ProfilerLogUtil.ReadUint(stream);
+            }
         }
 
     }

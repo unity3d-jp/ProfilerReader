@@ -37,6 +37,17 @@ namespace UTJ.ProfilerReader
                     gpuTm.Read(stream);
                     m_GPUTimeSamples.Add(gpuTm);
                 }
+                // object names
+                if( version >= ProfilerDataStreamVersion.Unity2022_1)
+                {
+                    int instanceIdSamplesNum = ProfilerLogUtil.ReadInt(stream);
+                    for(int i = 0;i< instanceIdSamplesNum; ++i)
+                    {
+                        int relateddSampleIndex = ProfilerLogUtil.ReadInt(stream);
+                        int instanceID = ProfilerLogUtil.ReadInt(stream);
+                    }
+                }
+
                 //gc memorySamples
                 int gcSampleNum = ProfilerLogUtil.ReadInt(stream);
                 m_AllocatedGCMemorySamples = new List<AllocatedGCMemory>(gcSampleNum);
@@ -50,9 +61,12 @@ namespace UTJ.ProfilerReader
 
 
                 // profiler Information
-                for (int i = 0; i < allSampleNum; ++i)
+                if (version < ProfilerDataStreamVersion.Unity2022_2)
                 {
-                    m_AllSamples[i].ReadInformation_Generic(stream,version);
+                    for (int i = 0; i < allSampleNum; ++i)
+                    {
+                        m_AllSamples[i].ReadInformation_Generic(stream, version);
+                    }
                 }
 
                 // warningSample

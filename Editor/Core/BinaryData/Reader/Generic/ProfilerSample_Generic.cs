@@ -14,6 +14,12 @@ namespace UTJ.ProfilerReader
 
             internal void Read_Generic(System.IO.Stream stream ,uint version)
             {
+                if(version >= ProfilerDataStreamVersion.Unity2022_2)
+                {
+                    // todo Unity2022 add maker
+                    this.makerId = ProfilerLogUtil.ReadUint(stream);
+                }
+
                 if (version >= ProfilerDataStreamVersion.Unity2020_2)
                 {
                     this.timeUS = ProfilerLogUtil.ReadFloat(stream);

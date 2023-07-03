@@ -19,6 +19,9 @@ namespace UTJ.ProfilerReader
             public ProfilerInformation profilerInfo { get; set; }
             public MetaData metaDatas { get; set; }
 
+            // from 2022_2
+            public uint makerId { get; set; }
+
             public List<MetaData.MetaDataValue> metadataValues
             {
                 get

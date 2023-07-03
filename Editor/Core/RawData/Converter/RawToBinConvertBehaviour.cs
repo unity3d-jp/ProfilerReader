@@ -434,5 +434,20 @@ namespace UTJ.ProfilerReader.RawData.Converter
             info.flags = categoryState.flags;
             this.categoryDictionary[categoryState.categoryID] = info;
         }
+
+
+        // todo
+        public void OnDataRead(ref UnityNativeTypeInfo typeInfo)
+        {
+
+        }
+        public void OnDataRead(ref GfxResourceInfo typeInfo)
+        {
+
+        }
+        public void OnDataRead(ref UnityObjectInfo typeInfo)
+        {
+
+        }
     }
 }

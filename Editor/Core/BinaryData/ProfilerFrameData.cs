@@ -60,6 +60,11 @@ namespace UTJ.ProfilerReader
             // Even if there are same name samples...So "List<ProfilerSample>" 
             private Dictionary<string, List<ProfilerSample>> m_CounterValueDictionary;
 
+            private List<ushort> m_CountersEnabled;
+
+            // from Unity 2022
+            private MakerSymbolDictionary makerSymbolDictionary;
+
             public ThreadData MainThread
             {
                 get

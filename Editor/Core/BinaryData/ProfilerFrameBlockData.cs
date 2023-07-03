@@ -14,6 +14,9 @@ namespace UTJ.ProfilerReader
             public int frameDataSize { get; set; }
             public int threadCount { get; set; }
 
+            // from Unity 2022
+            public uint[] unityVersion { get; set; }
+
             public ProfilerFrameData frameData { get; set; }
         }
     }

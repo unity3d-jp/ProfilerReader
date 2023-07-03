@@ -23,6 +23,13 @@ namespace UTJ.ProfilerReader.RawData.Protocol
             kUISystemCanvas = 6,
             kUIEvents = 7,
 
+            // From 2022
+            kUnityNativeTypeInfo = 10,
+            // From 2022
+            kUnityObjectInfo = 11,
+            // From 2022
+            kGfxResourceInfo = 12,
+
             // from 2019.3
             kMethodJitInfo = 8,
             kGlobalMessagesCount = 32,

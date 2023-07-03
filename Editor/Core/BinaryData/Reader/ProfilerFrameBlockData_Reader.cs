@@ -9,6 +9,12 @@ namespace UTJ.ProfilerReader
     {
         public static class ProfilerDataStreamVersion
         {
+            public const int RawUnity2022_2 = 0x20220328;
+            public const int Unity2022_2 = 0x20220328;
+
+            public const int RawUnity2022_1 = 0x20210919;
+            public const int Unity2022_1 = 0x20210919;
+
             public const int RawUnity2021_2 = 0x20210412;
             public const int Unity2021_2 = 0x20210412;
             // No change at 2021.1 from 2020.3LTS
@@ -89,7 +95,18 @@ namespace UTJ.ProfilerReader
                     this.littleEndian = 1;
                     this.dataVersion = firstParam;
                     this.frameDataSize = ProfilerLogUtil.ReadInt(stream);
-                    this.threadCount = ProfilerLogUtil.ReadInt(stream);
+                    if (this.dataVersion < ProfilerDataStreamVersion.RawUnity2022_2)
+                    {
+                        this.threadCount = ProfilerLogUtil.ReadInt(stream);
+                    }
+                    else
+                    {
+                        this.unityVersion = new uint[5];
+                        for(int i =0;i<5;i++)
+                        {
+                            this.unityVersion[i] = ProfilerLogUtil.ReadUint(stream);
+                        }
+                    }
                 }
                 return true;
             }
@@ -131,6 +148,8 @@ namespace UTJ.ProfilerReader
                     case ProfilerDataStreamVersion.Unity2020_1:
                     case ProfilerDataStreamVersion.Unity2020_2:
                     case ProfilerDataStreamVersion.Unity2021_2:
+                    case ProfilerDataStreamVersion.Unity2022_1:
+                    case ProfilerDataStreamVersion.Unity2022_2:
                         flag = this.frameData.ReadGeneric(stream, frameDataSize, threadCount, frameIndex, 
                             (uint)ProfilerDataStreamVersion.ConvertVersionForExecute(this.dataVersion,unityVersion) );
                         break;

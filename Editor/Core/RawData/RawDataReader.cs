@@ -1,9 +1,7 @@
-﻿using System.IO;
-using System.Collections.Generic;
-using UTJ.ProfilerReader.RawData.Protocol;
-using UTJ.ProfilerReader.RawData.Converter;
+﻿using System.Collections.Generic;
+using System.IO;
 using UTJ.ProfilerReader.RawData.Debug;
-using System.Threading;
+using UTJ.ProfilerReader.RawData.Protocol;
 
 namespace UTJ.ProfilerReader.RawData
 {
@@ -70,6 +68,12 @@ namespace UTJ.ProfilerReader.RawData
             // 最初に 36Byte読み込む
             fs.Read(buffer, 0, 36);
             sessionHeader.ReadData(buffer);
+            if(sessionHeader.version >= UTJ.ProfilerReader.BinaryData.ProfilerDataStreamVersion.Unity2022_2)
+            {
+                fs.Read(buffer, 0, 20);
+                sessionHeader.AddUnityVersionData(buffer);
+            }
+
             isExit = false;
             // Set Frame Info
             var frame = new Frame() { index = Frame.kInvalidFrame, time = 0 };
@@ -327,6 +331,28 @@ namespace UTJ.ProfilerReader.RawData
                         rawDataBehaviour.OnDataRead(ref categoryState);
                     }
                     break;
+                case RawDataDefines.MessageType.kUnityNativeTypeInfo:
+                    {
+                        UnityNativeTypeInfo nativeTypeInfo = new UnityNativeTypeInfo();
+                        nativeTypeInfo.Read(reader);
+                        rawDataBehaviour.OnDataRead(ref nativeTypeInfo);
+
+                    }
+                    break;
+                case RawDataDefines.MessageType.kUnityObjectInfo:
+                    {
+                        UnityObjectInfo objectInfo = new UnityObjectInfo();
+                        objectInfo.Read(reader, false);
+                        rawDataBehaviour.OnDataRead(ref objectInfo);
+                    }
+                    break;
+                case RawDataDefines.MessageType.kGfxResourceInfo:
+                    {
+                        GfxResourceInfo gfxResource = new GfxResourceInfo();
+                        gfxResource.Read(reader);
+                        rawDataBehaviour.OnDataRead(ref gfxResource);
+                    }
+                    break;
 
                 default:
                     ProfilerLogUtil.LogError("UnknownMessage:" + messageType);
@@ -491,6 +517,8 @@ namespace UTJ.ProfilerReader.RawData
                         rawDataBehaviour.OnDataRead(ref allProfilerStats);
                     }
                     break;
+
+
                 default:
                     ProfilerLogUtil.LogError("UnknownMessage:" + messageType +
                         " preview:" + prevMessageType + " position:" + reader.Position + "/" + reader.Length +

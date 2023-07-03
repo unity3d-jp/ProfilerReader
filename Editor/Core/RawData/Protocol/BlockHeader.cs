@@ -22,7 +22,7 @@ namespace UTJ.ProfilerReader.RawData.Protocol
             this.blockId = UTJ.ProfilerReader.ProfilerLogUtil.GetUIntValue(buffer, 4);
             this.threadId = UTJ.ProfilerReader.ProfilerLogUtil.GetULongValue(buffer, 8);
             this.length = UTJ.ProfilerReader.ProfilerLogUtil.GetUIntValue(buffer, 16);
-            return (signature == kSignature);
+            return ((signature == kSignature) );
         }
         
         public static bool IsGlobalThread( ulong thId)
