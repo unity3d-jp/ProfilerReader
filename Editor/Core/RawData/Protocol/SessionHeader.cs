@@ -39,7 +39,7 @@ namespace UTJ.ProfilerReader.RawData.Protocol
             this.unityVersion = new int[versionTypeNum];
             for(int i = 0; i < versionTypeNum; ++i)
             {
-                this.version = UTJ.ProfilerReader.ProfilerLogUtil.GetUIntValue(buffer, i*4);
+                this.unityVersion[i] = UTJ.ProfilerReader.ProfilerLogUtil.GetIntValue(buffer, i*4);
             }
         }
         public bool CheckSignature()
