@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UTJ.ProfilerReader.Analyzer;
 using UnityEngine;
 using System.IO;
+using System.Threading.Tasks;
+
 namespace UTJ.ProfilerReader
 {
     public class CUIInterface
@@ -138,16 +140,40 @@ namespace UTJ.ProfilerReader
                     Debug.LogError(e);
                 }
 
-                foreach (var analyzer in analyzeExecutes)
+                if (frameData != null)
                 {
-                    try
+                    List<Task> tasks = new List<Task>(analyzeExecutes.Count);
+                    foreach (var analyzer in analyzeExecutes)
                     {
-                        if (frameData != null) {
-                            analyzer.CollectData(frameData);
+                        var task = Task.Run(() =>
+                        {
+                            try
+                            {
+                                analyzer.CollectData(frameData);
+
+                            }
+                            catch (System.Exception e)
+                            {
+                                Debug.LogError(e);
+                            }
+                        });
+                        tasks.Add(task);
+                    }
+                    while (true)
+                    {
+                        bool isComplete = true;
+                        foreach (var task in tasks)
+                        {
+                            if (!task.IsCompleted)
+                            {
+                                isComplete = false;
+                                break;
+                            }
                         }
-                    }catch(System.Exception e)
-                    {
-                        Debug.LogError(e);
+                        if (isComplete)
+                        {
+                            break;
+                        }
                     }
                 }
                 System.GC.Collect();

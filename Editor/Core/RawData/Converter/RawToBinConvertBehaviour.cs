@@ -370,6 +370,7 @@ namespace UTJ.ProfilerReader.RawData.Converter
             dest.profilerInfo.flags = info.flags;
             dest.profilerInfo.name = info.name;
             dest.profilerInfo.group = info.group;
+            dest.makerId = info.samplerId;
             // sample withMetadata
             if( wrappedData.sampleType == SampleWrappedData.EType.SampleWithMetadata)
             {

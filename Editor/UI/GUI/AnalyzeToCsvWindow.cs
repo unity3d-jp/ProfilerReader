@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using UTJ.ProfilerReader.Analyzer;
 using System.Reflection;
 using System.IO;
+using System.Threading.Tasks;
+using System.Text;
+using UnityEditor.Overlays;
 
 namespace UTJ.ProfilerReader.UI {
 
@@ -37,6 +40,12 @@ namespace UTJ.ProfilerReader.UI {
         private bool requestDialogFlag = false;
 
         private bool isMultiThreadExecute = true;
+        private List<Task> analyzeTasks = new List<Task>(16);
+        private List<string> analyzeTaskNames = new List<string>(16);
+        private string taskStatus = "";
+        private GUIStyle uiStyle;
+
+
 
         [MenuItem("Tools/UTJ/ProfilerReader/AnalyzeToCsv")]
         public static void CreateWindow()
@@ -46,6 +55,8 @@ namespace UTJ.ProfilerReader.UI {
 
         private void OnEnable()
         {
+            this.uiStyle = new GUIStyle( );
+            this.uiStyle.normal.textColor = Color.red;
             this.isWindowExists = true;
             this.fileWriterFlags.Clear();
             var types = AnalyzerUtil.GetInterfaceType<IAnalyzeFileWriter>();
@@ -97,15 +108,49 @@ namespace UTJ.ProfilerReader.UI {
                 }
                 foreach (var analyzer in this.analyzeExecutes)
                 {
-                    try
+                    var task = Task.Run(() =>
                     {
-                        analyzer.CollectData(frameData);
+                        try
+                        {
+                            analyzer.CollectData(frameData);
+                        }
+                        catch (System.Exception e)
+                        {
+                            Debug.LogError(e);
+                        }
+                    });
+                    analyzeTaskNames.Add(analyzer.GetType().Name);
+                    analyzeTasks.Add(task);
+                }
+                // waiting all tasks
+                var sb = new StringBuilder();
+                while (true)
+                {
+                    bool isDone = true;
+                    sb.Length = 0;
+                    for(int i = 0;i < analyzeTasks.Count;++i)
+                    {
+                        var task = analyzeTasks[i];
+                        if (!task.IsCompleted)
+                        {
+                            isDone = false;
+                            if(sb.Length > 0)
+                            {
+                                sb.Append("\n");
+                            }
+                            sb.Append(analyzeTaskNames[i]).Append("::").Append(task.Status);
+                        }
                     }
-                    catch (System.Exception e)
+                    taskStatus = sb.ToString();
+                    if (isDone)
                     {
-                        Debug.LogError(e);
+                        break;
                     }
                 }
+                taskStatus = "";
+                analyzeTasks.Clear();
+                analyzeTaskNames.Clear();
+
                 System.GC.Collect();
 
             }
@@ -171,7 +216,10 @@ namespace UTJ.ProfilerReader.UI {
             EditorGUILayout.EndHorizontal();
             if (IsExecute() )
             {
+                uiStyle.alignment = TextAnchor.UpperLeft;
+                
                 EditorGUILayout.LabelField("Progress " + logReader.Progress * 100.0f + "%");
+                EditorGUILayout.LabelField(this.taskStatus, uiStyle, GUILayout.Height(200));
             }
             else
             {

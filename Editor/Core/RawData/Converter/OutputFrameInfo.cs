@@ -186,12 +186,11 @@ namespace UTJ.ProfilerReader.RawData.Converter
             {
                 if (startData.sample.id == dictionaryData.GCAllocSampleID)
                 {
-                    this.currentProfilerSample.gcAllocList = new List<AllocatedGCMemory>();
                     var gcAlloc = new AllocatedGCMemory();
                     uint tmpValue;
                     startData.metadatas[0].GetUintValue(out tmpValue);
                     gcAlloc.allocatedGCMemory = tmpValue;
-                    this.currentProfilerSample.gcAllocList.Add(gcAlloc);
+                    this.currentProfilerSample.AddAllocatedGC(gcAlloc);
                     ProfilerSample.AddChildAllocToParent(currentProfilerSample);
                 }
             }

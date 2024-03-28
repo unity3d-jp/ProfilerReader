@@ -89,10 +89,13 @@ namespace UTJ.ProfilerReader
                 {
                     return null;
                 }
-                if (m_sortedJitByAddr == null)
+                lock (this)
                 {
-                    m_sortedJitByAddr = new List<JitInfo>(this.m_jitInfos);
-                    m_sortedJitByAddr.Sort(new JitInfo.CompareByAddr() );
+                    if (m_sortedJitByAddr == null)
+                    {
+                        m_sortedJitByAddr = new List<JitInfo>(this.m_jitInfos);
+                        m_sortedJitByAddr.Sort(new JitInfo.CompareByAddr());
+                    }
                 }
                 int minIdx = 0 , maxIdx = m_sortedJitByAddr.Count-1;
 
@@ -360,14 +363,17 @@ namespace UTJ.ProfilerReader
             {
                 get
                 {
-                    if(m_categoryDictionary == null)
+                    lock (this)
                     {
-                        m_categoryDictionary = new Dictionary<uint, Category>();
-                        if (m_categories != null)
+                        if (m_categoryDictionary == null)
                         {
-                            foreach (var category in m_categories)
+                            m_categoryDictionary = new Dictionary<uint, Category>();
+                            if (m_categories != null)
                             {
-                                this.m_categoryDictionary[category.categoryId] = category;
+                                foreach (var category in m_categories)
+                                {
+                                    this.m_categoryDictionary[category.categoryId] = category;
+                                }
                             }
                         }
                     }

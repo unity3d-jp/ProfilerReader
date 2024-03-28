@@ -31,7 +31,6 @@ namespace UTJ.ProfilerReader
                 }
             }
 
-            private static StringBuilder stringBuilderBuffer = new StringBuilder(128);
 
             // parent( call from)
             public ProfilerSample parent { get; set; }
@@ -63,15 +62,33 @@ namespace UTJ.ProfilerReader
                     return profilerInfo.group;
                 }
             }
+
+            private string fullSampleNameStr = null;
+            private static StringBuilder stringBuilderBuffer = new StringBuilder(1024);
             public string fullSampleName
             {
                 get
                 {
-                    // to reduce gc alloc
-                    // single thread only...
-                    stringBuilderBuffer.Length = 0;
-                    NameAddRecursive(stringBuilderBuffer, this, 0);
-                    return stringBuilderBuffer.ToString();
+                    if (fullSampleNameStr == null)
+                    {
+                        if (this.parent == null)
+                        {
+                            fullSampleNameStr = this.sampleName;
+                        }
+                        else
+                        {
+                            var parentString = this.parent.fullSampleName;
+                            lock (stringBuilderBuffer)
+                            {
+                                stringBuilderBuffer.Length = 0;
+                                stringBuilderBuffer.Append(parentString).
+                                    Append(" -> ").Append(this.sampleName);
+                                fullSampleNameStr = stringBuilderBuffer.ToString();
+                            }
+                        }
+                    }
+
+                    return fullSampleNameStr;
                 }
             }
             public float selfTimeUs
@@ -92,22 +109,12 @@ namespace UTJ.ProfilerReader
 
 
             // gc calculate cache
-            private bool isCalcCurrentGc = false;
             private uint calcedCurrentGc = 0;
 
             public uint currenGcAlloc
             {
                 get
                 {
-                    if (this.isCalcCurrentGc) { return this.calcedCurrentGc; }
-                    if (gcAllocList == null) {  return 0;}
-                    this.calcedCurrentGc = 0;
-                    int length = gcAllocList.Count;
-                    for (int i = 0; i < length; ++i)
-                    {
-                        this.calcedCurrentGc += gcAllocList[i].allocatedGCMemory;
-                    }
-                    this.isCalcCurrentGc = true;
                     return this.calcedCurrentGc;
                 }
             }
@@ -119,9 +126,11 @@ namespace UTJ.ProfilerReader
             public uint GetSelfChildGcAlloc()
             {
                 uint gc = 0;
-                foreach(var child in this.children)
+                var childs = this.children;
+                var childCount = childs.Count;
+                for(int i=0; i < childCount; ++i)
                 {
-                    gc += child.currenGcAlloc;
+                    gc += childs[i].calcedCurrentGc;
                 }
                 return gc;
             }
@@ -226,6 +235,7 @@ namespace UTJ.ProfilerReader
                 return idx;
             }
 
+            /* old code
             private static void NameAddRecursive(StringBuilder sb, ProfilerSample sample, int call)
             {
                 if (sample == null) { return; }
@@ -233,11 +243,13 @@ namespace UTJ.ProfilerReader
                 sb.Append(sample.sampleName);
                 if (call != 0 && !string.IsNullOrEmpty(sample.sampleName) ) { sb.Append(" -> "); }
             }
+            */
 
             public void AddAllocatedGC(AllocatedGCMemory alloc)
             {
                 if (gcAllocList == null) { gcAllocList = new List<AllocatedGCMemory>(4); }
                 gcAllocList.Add(alloc);
+                calcedCurrentGc += alloc.allocatedGCMemory;
             }
 
             public static void ResolveGcAllocate(List<ProfilerSample> sampleList,List<AllocatedGCMemory> allocList)

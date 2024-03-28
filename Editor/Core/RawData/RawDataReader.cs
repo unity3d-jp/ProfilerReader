@@ -35,7 +35,7 @@ namespace UTJ.ProfilerReader.RawData
         {
             get
             {
-                if( fs == null)
+                if( fs == null || this.isExit)
                 {
                     return 1.0f;
                 }

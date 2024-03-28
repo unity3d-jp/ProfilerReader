@@ -1,7 +1,7 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Runtime.CompilerServices;
 
 namespace UTJ.ProfilerReader
 {
@@ -296,21 +296,25 @@ namespace UTJ.ProfilerReader
                 logErrorException(e);
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Min(float a, float b)
         {
             if (a < b) { return a; }
             return b;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Max(float a, float b)
         {
             if (a > b) { return a; }
             return b;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Min(uint a, uint b)
         {
             if (a < b) { return a; }
             return b;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Max(uint a, uint b)
         {
             if (a > b) { return a; }
@@ -318,11 +322,13 @@ namespace UTJ.ProfilerReader
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Min(int a, int b)
         {
             if (a < b) { return a; }
             return b;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Max(int a, int b)
         {
             if (a > b) { return a; }
