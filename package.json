@@ -1,7 +1,7 @@
 {
   "name": "com.utj.profilerreader",
   "displayName": "Profiler Reader",
-  "version": "0.8.0-preview",
+  "version": "0.8.1-preview",
   "unity": "2018.1",
   "description": "read profiler log data package",
   "keywords": [
