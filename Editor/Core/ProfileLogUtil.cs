@@ -85,6 +85,32 @@ namespace UTJ.ProfilerReader
             return (byte)(stream.ReadByte());
         }
 
+        public static int ConvertUlongToInt(ulong val)
+        {
+            byte b1, b2, b3, b4;
+            b1 = (byte)(val & 0xFF);
+            b2 = (byte)( (val >> 8) & 0xFF);
+            b3 = (byte)( (val >> 16) & 0xFF);
+            b4 = (byte)( (val >> 24) & 0xFF);
+            return (b1 << 0) +
+                (b2 << 8) +
+                (b3 << 16) +
+                (b4 << 24);
+        }
+        public static ulong ConvertIntToUlong(int val)
+        {
+            byte b1, b2, b3, b4;
+            b1 = (byte)(val & 0xFF);
+            b2 = (byte)((val >> 8) & 0xFF);
+            b3 = (byte)((val >> 16) & 0xFF);
+            b4 = (byte)((val >> 24) & 0xFF);
+            return ((ulong)(b1 << 0)) +
+                ((ulong)(b2 << 8)) +
+                ((ulong)(b3 << 16)) +
+                ((ulong)(b4 << 24));
+        }
+
+
         public static void AlignSkip(System.IO.Stream stream, int readBytes, int aligneByte)
         {
 

@@ -113,7 +113,7 @@ namespace UTJ.ProfilerReader.BinaryData.Stats
             // Instance object to get fixed array size 
             T obj = Activator.CreateInstance<T>();
 
-            var fields = t.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var fields = t.GetFields(BindingFlags.Public |BindingFlags.NonPublic| BindingFlags.Instance);
             if(fields == null) { return; }
             foreach (var field in fields)
             {

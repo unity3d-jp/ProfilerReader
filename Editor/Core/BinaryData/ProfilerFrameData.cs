@@ -31,8 +31,6 @@ namespace UTJ.ProfilerReader
             public List<ThreadData> m_ThreadData { get; set; }
             public int m_ThreadCount { get; set; }
 
-            // before 5.4
-            public List<AudioProfilerInfo> m_AudioInstanceInfo { get; set; }
             // afeter 5.5 
             public List<AudioProfilerGroupInfo> m_AudioInstanceGroupInfo { get; set; }
             public List<AudioProfilerDSPInfo> m_AudioInstanceDSPInfo { get; set; }
@@ -40,12 +38,14 @@ namespace UTJ.ProfilerReader
 
             private string m_AudioInstanceNames;
 
-            /** Todo UI Profiler form 2017.1 */
+            /**  */
             public List<UISystemProfilerInfo> m_UISystemCanvasInfo{get;set;}
             public List<string> m_UISystemCanvasNames{get;set;}
             public List<EventMarker> m_EventMarkers{get;set;}
             public List<string> m_EventNames{get;set;}
             public List<uint> m_UIBatchInstanceIDs { get; set; }
+            // From 6.5 
+            public List<ulong> m_UIBatchInstanceIDs64Bit { get; set; }
 
             // from 2019.3
             public List<JitInfo> m_jitInfos;

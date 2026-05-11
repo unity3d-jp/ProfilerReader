@@ -76,6 +76,8 @@ namespace UTJ.ProfilerReader.RawData.Protocol
             kString16 = 9,
             kVec3 = 10,
             kBlob8 = 11,
+            kGfxResourceId = 12, // kUnityProfilerMarkerDataTypeGfxResourceId
+            kEntityId = 13, // kUnityProfilerMarkerDataTypeEntityId
             kCount
         };
         public const int InstanceID_None = 0;

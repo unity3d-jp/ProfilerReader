@@ -115,7 +115,7 @@ namespace UTJ.ProfilerReader.Analyzer
                                 using (new ProfilingScope(_gcAllocGetSampler))
 #endif
                                 {
-                                    selfGcAlloc = sample.currenGcAlloc;
+                                    selfGcAlloc = parent.GetSelfChildGcAlloc();
                                 }
                                 AddData(thread.FullName, parent, GetCallStackInfo(frameData, sample),
                                     selfGcAlloc);
@@ -136,7 +136,7 @@ namespace UTJ.ProfilerReader.Analyzer
                             {
                                 var parent = sample.parent;
                                 AddData(thread.FullName, parent, GetCallStackInfo(frameData, sample),
-                                    sample.currenGcAlloc);
+                                    parent.GetSelfChildGcAlloc());
                             }
                         }
                     }

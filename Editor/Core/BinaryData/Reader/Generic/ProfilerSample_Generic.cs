@@ -16,7 +16,6 @@ namespace UTJ.ProfilerReader
             {
                 if(version >= ProfilerDataStreamVersion.Unity2022_2)
                 {
-                    // todo Unity2022 add maker
                     this.makerId = ProfilerLogUtil.ReadUint(stream);
                 }
 

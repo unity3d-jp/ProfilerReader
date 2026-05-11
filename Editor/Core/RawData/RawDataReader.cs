@@ -342,7 +342,7 @@ namespace UTJ.ProfilerReader.RawData
                 case RawDataDefines.MessageType.kUnityObjectInfo:
                     {
                         UnityObjectInfo objectInfo = new UnityObjectInfo();
-                        objectInfo.Read(reader, false);
+                        objectInfo.Read(reader, false); // sessionHeader.version;
                         rawDataBehaviour.OnDataRead(ref objectInfo);
                     }
                     break;

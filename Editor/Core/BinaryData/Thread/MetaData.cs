@@ -91,7 +91,13 @@ namespace UTJ.ProfilerReader.BinaryData.Thread
                     case (int)RawDataDefines.MetadataDescriptionType.kBlob8:
                         this.convertedObject = this.val;
                         break;
+                    case (int)RawDataDefines.MetadataDescriptionType.kGfxResourceId:
+                        this.convertedObject = ProfilerLogUtil.GetULongValue(this.val, 0);
+                        break;
 
+                    case (int)RawDataDefines.MetadataDescriptionType.kEntityId:
+                        this.convertedObject = ProfilerLogUtil.GetULongValue(this.val, 0);
+                        break;
                 }
             }
         }

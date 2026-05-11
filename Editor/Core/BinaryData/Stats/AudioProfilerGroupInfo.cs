@@ -7,11 +7,19 @@ namespace UTJ.ProfilerReader.BinaryData.Stats
     {
 
         /*InstanceID*/
-        [StatsData(0)]
+        [StatsData(0,0,ProfilerDataStreamVersion.Unity6000_5-1)]
         public int assetInstanceId;
         /*InstanceID*/
-        [StatsData(1)]
+        [StatsData(1, 0, ProfilerDataStreamVersion.Unity6000_5 - 1)]
         public int objectInstanceId;
+
+        /* From unity 6.5 64bit*/
+        [StatsData(0, ProfilerDataStreamVersion.Unity6000_5)]
+        public ulong assetInstanceId64Bit;
+        /*InstanceID*/
+        [StatsData(1, ProfilerDataStreamVersion.Unity6000_5 )]
+        public ulong objectInstanceId64Bit;
+
         [StatsData(2)]
         public int assetNameOffset;
         [StatsData(3)]

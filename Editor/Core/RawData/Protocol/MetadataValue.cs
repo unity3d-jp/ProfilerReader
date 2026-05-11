@@ -37,6 +37,8 @@ namespace UTJ.ProfilerReader.RawData.Protocol
                     }
                     return true;
                 case RawDataDefines.MetadataDescriptionType.kUInt64:
+                case RawDataDefines.MetadataDescriptionType.kGfxResourceId:
+                case RawDataDefines.MetadataDescriptionType.kEntityId:
                     {
                         ulong tmp = (ulong)val;
                         result = (uint)tmp;

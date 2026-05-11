@@ -17,10 +17,23 @@ namespace UTJ.ProfilerReader.BinaryData.Stats
             DifferentClipRect = 64,
             Unknown = 128,
         }
-        
-        public int   objectInstanceId{get;private set;}
+
+        // objectInstanceId for 64Bit
+        public ulong objectInstanceId { get; private set; }
+        public ulong parentId { get; private set; }
+
+        public int objectInstanceIdAs32Bit{ 
+            get {
+                return ProfilerLogUtil.ConvertUlongToInt(this.objectInstanceId);
+            }
+        }
         public int objectNameOffset { get; set; }
-        public int parentId { get; set; }
+        public int parentIdAs32Bit { 
+            get
+            {
+                return ProfilerLogUtil.ConvertUlongToInt(this.parentId);
+            }
+        }
         public int batchCount { get; set; }
         public int totalBatchCount { get; set; }
         public int vertexCount { get; set; }
@@ -32,11 +45,28 @@ namespace UTJ.ProfilerReader.BinaryData.Stats
         public int renderDataIndex { get; set; }
         public int renderDataCount { get; set; }
 
-        public void Read(Stream stream)
+        public void Read(Stream stream,uint version)
         {
-            objectInstanceId = ProfilerLogUtil.ReadInt(stream);
+            if (version >= ProfilerDataStreamVersion.Unity6000_5)
+            {
+                objectInstanceId = ProfilerLogUtil.ReadULong(stream);
+            }
+            else {
+                int objId = ProfilerLogUtil.ReadInt(stream);
+                objectInstanceId = ProfilerLogUtil.ConvertIntToUlong( objId );
+            }
             objectNameOffset = ProfilerLogUtil.ReadInt(stream);
-            parentId = ProfilerLogUtil.ReadInt(stream);
+
+            if (version >= ProfilerDataStreamVersion.Unity6000_5)
+            {
+                parentId = ProfilerLogUtil.ReadULong(stream);
+            }
+            else
+            {
+                int pid = ProfilerLogUtil.ReadInt(stream);
+                parentId = ProfilerLogUtil.ConvertIntToUlong(pid);
+            }
+
             batchCount = ProfilerLogUtil.ReadInt(stream);
             totalBatchCount = ProfilerLogUtil.ReadInt(stream);
             vertexCount = ProfilerLogUtil.ReadInt(stream);

@@ -81,7 +81,7 @@ namespace UTJ.ProfilerReader
                 for (int i = 0; i < uiInfoNum; ++i)
                 {
                     UISystemProfilerInfo  uiInfo = new UISystemProfilerInfo();
-                    uiInfo.Read(stream);
+                    uiInfo.Read(stream,version);
                     m_UISystemCanvasInfo.Add(uiInfo);
                 }
                 // canvas names
@@ -92,17 +92,29 @@ namespace UTJ.ProfilerReader
                 for (int i = 0; i < eventMakerNum; ++i)
                 {
                     EventMarker evtMaker = new EventMarker();
-                    evtMaker.Read(stream);
+                    evtMaker.Read(stream,version);
                     m_EventMarkers.Add(evtMaker);
                 }
                 // event Names
                 m_EventNames = ProfilerLogUtil.ReadNamesString(stream);
                 // batchInstances
                 int batchInstanceNum = ProfilerLogUtil.ReadInt(stream);
-                m_UIBatchInstanceIDs = new List<uint>(batchInstanceNum);
-                for (int i = 0; i < batchInstanceNum; ++i)
+
+                if (version >= ProfilerDataStreamVersion.Unity6000_5)
                 {
-                    m_UIBatchInstanceIDs.Add(ProfilerLogUtil.ReadUint(stream));
+                    m_UIBatchInstanceIDs64Bit = new List<ulong>(batchInstanceNum);
+                    for (int i = 0; i < batchInstanceNum; ++i)
+                    {
+                        m_UIBatchInstanceIDs64Bit.Add(ProfilerLogUtil.ReadULong(stream));
+                    }
+                }
+                else
+                {
+                    m_UIBatchInstanceIDs = new List<uint>(batchInstanceNum);
+                    for (int i = 0; i < batchInstanceNum; ++i)
+                    {
+                        m_UIBatchInstanceIDs.Add(ProfilerLogUtil.ReadUint(stream));
+                    }
                 }
                 #endregion
 
@@ -188,12 +200,24 @@ namespace UTJ.ProfilerReader
                     int unityObjectCount = ProfilerLogUtil.ReadInt(stream);
                     for(int i = 0;i< unityObjectCount; ++i)
                     {
-
-                        int instanceId = ProfilerLogUtil.ReadInt(stream);
-                        int relatedGameObjectInstanceId = 0;
-                        if (version >= ProfilerDataStreamVersion.Unity2022_2)
+                        // todo
+                        if (version >= ProfilerDataStreamVersion.RawUnity6000_5)
                         {
-                            relatedGameObjectInstanceId = ProfilerLogUtil.ReadInt(stream);
+                            ulong instanceId = ProfilerLogUtil.ReadULong(stream);
+                            if (version >= ProfilerDataStreamVersion.Unity2022_2)
+                            {
+                                ulong relatedGameObjectInstanceId = 0;
+                                relatedGameObjectInstanceId = ProfilerLogUtil.ReadULong(stream);
+                            }
+                        }
+                        else
+                        {
+                            int instanceId = ProfilerLogUtil.ReadInt(stream);
+                            if (version >= ProfilerDataStreamVersion.Unity2022_2)
+                            {
+                                int relatedGameObjectInstanceId = 0;
+                                relatedGameObjectInstanceId = ProfilerLogUtil.ReadInt(stream);
+                            }
                         }
                         uint typeId = ProfilerLogUtil.ReadUint(stream);
                         string name = ProfilerLogUtil.ReadString(stream);

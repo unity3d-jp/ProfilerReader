@@ -9,6 +9,10 @@ namespace UTJ.ProfilerReader
     {
         public static class ProfilerDataStreamVersion
         {
+            public const int RawUnity6000_5 = 0x20260108;
+            public const int Unity6000_5 = 0x20260108;
+
+
             public const int RawUnity2022_2 = 0x20220328;
             public const int Unity2022_2 = 0x20220328;
 
@@ -125,19 +129,11 @@ namespace UTJ.ProfilerReader
                 switch (this.dataVersion)
                 {
                     case ProfilerDataStreamVersion.Unity54:
-                        flag = this.frameData.Read_0x20140736(stream, frameDataSize, threadCount, frameIndex);
-                        break;
                     case ProfilerDataStreamVersion.Unity55:
-                        flag = this.frameData.Read_0x20160622(stream, frameDataSize, threadCount, frameIndex);
-                        break;
                     case ProfilerDataStreamVersion.Unity56:
-                        flag = this.frameData.Read_0x20161226(stream, frameDataSize, threadCount, frameIndex);
-                        break;
                     case ProfilerDataStreamVersion.Unity2017_1:
-                        flag = this.frameData.Read_0x20170130(stream, frameDataSize, threadCount, frameIndex);
-                        break;
                     case ProfilerDataStreamVersion.Unity2017_2:
-                        flag = this.frameData.Read_0x20170929(stream, frameDataSize, threadCount, frameIndex);
+                        new System.NotImplementedException("Too old formats!! " + this.dataVersion);
                         break;
                     case ProfilerDataStreamVersion.Actual_Unity2017_3:
                     case ProfilerDataStreamVersion.Unity2018_1:
@@ -150,6 +146,7 @@ namespace UTJ.ProfilerReader
                     case ProfilerDataStreamVersion.Unity2021_2:
                     case ProfilerDataStreamVersion.Unity2022_1:
                     case ProfilerDataStreamVersion.Unity2022_2:
+                    case ProfilerDataStreamVersion.Unity6000_5:
                         flag = this.frameData.ReadGeneric(stream, frameDataSize, threadCount, frameIndex, 
                             (uint)ProfilerDataStreamVersion.ConvertVersionForExecute(this.dataVersion,unityVersion) );
                         break;

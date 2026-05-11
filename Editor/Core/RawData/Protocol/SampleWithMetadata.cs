@@ -144,6 +144,8 @@ namespace UTJ.ProfilerReader.RawData.Protocol
                     }
                     break;
                 case RawDataDefines.MetadataDescriptionType.kUInt32:
+                case RawDataDefines.MetadataDescriptionType.kEntityId:
+                case RawDataDefines.MetadataDescriptionType.kGfxResourceId:
                     {
                         var readVal = reader.ReadUint();
                         AddMetaDataValue(metadataType, readVal);

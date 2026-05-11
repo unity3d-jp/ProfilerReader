@@ -44,7 +44,15 @@ namespace UTJ.ProfilerReader
                     for(int i = 0;i< instanceIdSamplesNum; ++i)
                     {
                         int relateddSampleIndex = ProfilerLogUtil.ReadInt(stream);
-                        int instanceID = ProfilerLogUtil.ReadInt(stream);
+                        if (version >= ProfilerDataStreamVersion.Unity6000_5)
+                        {
+                            ulong instanceID = ProfilerLogUtil.ReadULong(stream);
+
+                        }
+                        else
+                        {
+                            int instanceID = ProfilerLogUtil.ReadInt(stream);
+                        }
                     }
                 }
 
@@ -79,7 +87,6 @@ namespace UTJ.ProfilerReader
                 }
 
                 // Metadatas
-                // todo currently skip metadata.
 
                 int metadataSize = ProfilerLogUtil.ReadInt(stream);
                 m_MetaDatas = new List<MetaData>(metadataSize);
@@ -88,22 +95,6 @@ namespace UTJ.ProfilerReader
                     MetaData metadata = new MetaData();
                     metadata.Read(stream);
                     this.m_MetaDatas.Add(metadata);
-                    /*
-                    uint relatedSampleIndex = ProfilerLogUtil.ReadUint(stream);
-
-                    int metadataValueSize = ProfilerLogUtil.ReadInt(stream);
-                    for (int j = 0; j < metadataValueSize; ++j)
-                    {
-                        int type = ProfilerLogUtil.ReadInt(stream);
-
-                        int tmpArrSize = ProfilerLogUtil.ReadInt(stream);
-                        for (int k = 0; k < tmpArrSize; ++k)
-                        {
-                            byte tmpValue = ProfilerLogUtil.ReadUInt8Value(stream);
-                        }
-                        ProfilerLogUtil.AlignSkip(stream, tmpArrSize, 4);
-                    }
-                    */
                 }
                 if( version >=ProfilerDataStreamVersion.Unity2019_1)
                 {
